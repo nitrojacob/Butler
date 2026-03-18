@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: dependencies
+      run: git checkout https://github.com/espressif/ESP8266_RTOS_SDK.git
+    - name: environment
+      run: export IDF_PATH=./ESP8266_RTOS_SDK
+    - name: make
+      run: make
