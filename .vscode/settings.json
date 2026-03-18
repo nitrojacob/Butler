@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "nvs_flash.h": "c",
+        "scheme_softap.h": "c",
+        "protocomm.h": "c",
+        "protocomm_security0.h": "c",
+        "manager.h": "c",
+        "gpio.h": "c"
+    }
+}
