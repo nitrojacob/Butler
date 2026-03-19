@@ -60,3 +60,4 @@ CMakeCache.txt
 *.cbp
 *.layout
 CMakeFiles/
+sdkconfig.old

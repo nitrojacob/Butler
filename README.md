@@ -41,7 +41,7 @@ In the root folder of this repo, you can
  b. openssl req -x509 -newkey rsa:2048 -keyout ca_key.pem -out ca_cert.pem -days 3660
 
 ## Configuring the Device
-Android app for configuration at https://github.com/nitrojacob/ButlerManager.  
+Android app for configuration [is available in my other repo](https://github.com/nitrojacob/ButlerManager).  
 A set of python tools for interaction through MQTT is in tools directory.  
 
 ## Common Problems

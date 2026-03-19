@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build Project Butler
 
 on:
   push:
@@ -12,10 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: dependencies
-      run: git checkout https://github.com/espressif/ESP8266_RTOS_SDK.git
-    - name: environment
-      run: export IDF_PATH=./ESP8266_RTOS_SDK
-    - name: make
-      run: make
+      - uses: actions/checkout@v4
+      
+      - uses: jackestar/esp8266-rtos-sdk-action@v1
+        with:
+          sdk-ref: 'master'
+          install-deps: 'true'
+          make-target: 'all'
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: build/*.bin
+
