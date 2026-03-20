@@ -8,21 +8,27 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    container:
+      image: nsfilho/esp8266-rtos-sdk:3.3
+      options: --entrypoint=
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-      - uses: jackestar/esp8266-rtos-sdk-action@v1
-        with:
-          sdk-ref: 'master'
-          install-deps: 'true'
-          make-target: 'all'
-
-      - name: Upload firmware
+      - name: Build firmware
+        env:
+          MAKE_TARGET: all
+        run: |
+          . $HOME/esp/esp8266_export.sh
+          cd $GITHUB_WORKSPACE
+          make $MAKE_TARGET
+          
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: firmware
-          path: build/*.bin
+          path: |
+            build/*.bin
+            build/*.map
 
