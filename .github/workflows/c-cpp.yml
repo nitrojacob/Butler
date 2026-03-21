@@ -13,10 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: "Building project"
-        uses: airmeter-io/esp8266-rtos-sdk@v3
-        with:
-          makearg: "defconfig all"
+      # Build the image from the v3 tag Dockerfile in the remote repo,
+      # then run the build inside a container that mounts the workspace.
+      - name: Build helper Docker image
+        run: |
+          docker build -t esp8266_rtos_sdk:v3.4 "https://github.com/airmeter-io/esp8266-rtos-sdk.git#v3"
+
+      - name: Build project inside container
+        run: |
+          docker run --rm esp8266_rtos_sdk:v3.4
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
