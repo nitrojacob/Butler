@@ -9,20 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: nsfilho/esp8266-rtos-sdk:3.3
-      options: --entrypoint=
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Build firmware
-        env:
-          MAKE_TARGET: all
-        run: |
-          . $HOME/esp/esp8266_export.sh
-          cd $GITHUB_WORKSPACE
-          make $MAKE_TARGET
+      - name: "Building project"
+        uses: nsfilho/esp8266-rtos-sdk@v2
+        with:
+          makearg: "defconfig all"
+        shell: bash
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
