@@ -54,6 +54,21 @@ dkms.conf
 # debug information files
 *.dwo
 
+# CMake System
+test/CMakeLists.txt.user
+test/CMakeCache.txt
+test/CMakeFiles
+test/CMakeScripts
+test/Testing
+test/Makefile
+test/cmake_install.cmake
+test/install_manifest.txt
+test/compile_commands.json
+test/CTestTestfile.cmake
+test/_deps
+test/CMakeUserPresets.json
+
+# Custom
 build/
 CMakeCache.txt
 *password*
