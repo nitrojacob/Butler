@@ -2,6 +2,7 @@
 #define __CLEARBUTTON_H__
 
 #include <stdint.h>
+#include <esp_event.h>
 
 /* Event base declaration */
 extern esp_event_base_t GPIO_INTERRUPT_EVENTS;

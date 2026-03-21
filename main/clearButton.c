@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "driver/gpio.h"
-#include "esp_event.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include <driver/gpio.h>
 #include "clearButton.h"
 
 #include "board_cfg.h"

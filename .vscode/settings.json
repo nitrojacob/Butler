@@ -5,6 +5,8 @@
         "protocomm.h": "c",
         "protocomm_security0.h": "c",
         "manager.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "esp_event.h": "c",
+        "event_groups.h": "c"
     }
 }
