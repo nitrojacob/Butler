@@ -7,6 +7,9 @@
         "manager.h": "c",
         "gpio.h": "c",
         "esp_event.h": "c",
-        "event_groups.h": "c"
+        "event_groups.h": "c",
+        "stdint.h": "c",
+        "esp_event_legacy.h": "c",
+        "esp_event_base.h": "c"
     }
 }

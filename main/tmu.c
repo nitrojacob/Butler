@@ -10,8 +10,8 @@
 #include <freertos/task.h>
 
 #include <sys/time.h>
+#include <esp_log.h>
 #include "stateProbe.h"
-#include "esp_log.h"
 #include "board_cfg.h"
 #ifdef BOARD_CFG_USE_DS1307
   #include "ds1307.h"
