@@ -17,7 +17,7 @@ jobs:
       # then run the build inside a container that mounts the workspace.
       - name: Build helper Docker image
         run: |
-          docker build -t esp8266_rtos_sdk:v3.4 "https://github.com/airmeter-io/esp8266-rtos-sdk.git#v3"
+          docker build -t esp8266_rtos_sdk:v3.4 "https://github.com/nitrojacob/esp8266-rtos-sdk.git#v3"
 
       - name: Build project inside container
         run: |
