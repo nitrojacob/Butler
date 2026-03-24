@@ -24,10 +24,12 @@
 #include <stdlib.h>
 
 #include "heartBeat.h"
-#include "board_cfg.h"
 #include "stateProbe.h"
 #include "nvCron.h"
+#include "nvLogRing.h"
 #include "tmu.h"
+#include "trap.h"
+#include "board_cfg.h"
 
 #define COMM_STACK_SIZE 4096
 
@@ -112,6 +114,18 @@ static esp_err_t time_wr_handler(uint32_t session_id, const uint8_t *inbuf, ssiz
     return ESP_OK;
 }
 
+/* wifi_prov_mgr endpoint callback handler */
+esp_err_t plog_rd_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
+                                     uint8_t **outbuf, ssize_t *outlen, void *priv_data) {
+    size_t size;
+    ESP_LOGI(TAG, "Persitent Log Rd handler called with session_id: %d, inlen: %d", session_id, inlen);
+    size = nvLogRing_read(cronBuf, sizeof(cronBuf));
+    *outlen = size;
+    *outbuf = (uint8_t*)cronBuf;
+
+    return ESP_OK;
+}
+
 static void ip_cb(void* self, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     if(event_id == IP_EVENT_STA_GOT_IP)
@@ -164,7 +178,7 @@ static void commPreInit(void * pvParameters)
     ESP_ERROR_CHECK(nvs_flash_erase());
     ESP_ERROR_CHECK(nvs_flash_init());
 #endif /*CONFIG_RESET_PROVISIONED*/
-
+    nvLogRing_init();
     tcpip_adapter_init();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -185,6 +199,7 @@ static void commPreInit(void * pvParameters)
         ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("cronWr"));
         ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("timeWr"));
         ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("bcfgWr"));
+        //ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create(NVLOGRING_PROBE_ENDPOINT));
 
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, WIFI_PROV_STA_DISCONNECTED, &prov_cb, NULL));
     
@@ -221,6 +236,7 @@ static void commPreInit(void * pvParameters)
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("cronWr", cron_wr_handler, NULL));
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("timeWr", time_wr_handler, NULL));
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("bcfgWr", boardCfg_wr_handler, NULL));
+            //ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register(NVLOGRING_PROBE_ENDPOINT, plog_rd_handler, NULL));
             ESP_LOGI(TAG, "Heap after wifi_prov_mgr_endpoint_register: %d bytes", esp_get_free_heap_size());
 
             // Wait for provisioning to complete
@@ -232,6 +248,7 @@ static void commPreInit(void * pvParameters)
         wifi_prov_mgr_endpoint_unregister("cronWr");
         wifi_prov_mgr_endpoint_unregister("timeWr");
         wifi_prov_mgr_endpoint_unregister("bcfgWr");
+        //wifi_prov_mgr_endpoint_unregister(NVLOGRING_PROBE_ENDPOINT);
     
 
         // Deinitialize provisioning manager

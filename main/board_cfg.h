@@ -1,5 +1,6 @@
 /**
- * Board/Variant Specific Configurations
+ * @file Board configuration header
+ * Contains all board-specific configuration parameters for the Butler device.
  */
 
 #ifndef __BOARD_CFG_H__
@@ -10,6 +11,10 @@
 
 #define CRON_MAX_ENTRIES  15
 #define ENABLE_NVCRON_REMOTE 1
+
+/* Log Ring Buffer Configuration */
+#define NVLOGRING_MAX_ENTRIES 32
+
 
 /* GPIO for Heartbeat indicotor LED: Active low */
 #define INDICATOR_LED  2

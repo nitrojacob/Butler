@@ -10,6 +10,8 @@
         "event_groups.h": "c",
         "stdint.h": "c",
         "esp_event_legacy.h": "c",
-        "esp_event_base.h": "c"
+        "esp_event_base.h": "c",
+        "types.h": "c",
+        "stdint-gcc.h": "c"
     }
 }

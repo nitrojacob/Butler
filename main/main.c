@@ -21,6 +21,7 @@
 #include "fota.h"
 #include "tmu.h"
 #include "nvCron.h"
+#include "nvLogRing.h"
 #include "comm.h"
 #include "board_cfg.h"
 #include "trap.h"
@@ -75,9 +76,12 @@ static void lateInit(void * pvParameters)
   heartBeat_reconfigure(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1);*/
   stateProbe_init();
   fota_init();
+  trap_late_init();
   nvCronRemote_init();
   tmuRemote_init();
-  trap_init();
+  nvLogRing_stateProbe_init();
+
+  BUTLER_LOG("Initilaized");
 
   /*Kill*/
   vTaskDelete(NULL);
@@ -129,6 +133,7 @@ void app_main()
   ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_LOST_IP, &lostIP_cb, NULL));
   
   lateInitCompleted = 0;
+  trap_init();
   commInit();
   xTaskCreate(tick_loop, "tick", TICK_TASK_STACK_SIZE, NULL, TICK_TASK_PRIO, NULL);
 

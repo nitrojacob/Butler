@@ -76,3 +76,4 @@ CMakeCache.txt
 *.layout
 CMakeFiles/
 sdkconfig.old
+tools/devices.txt

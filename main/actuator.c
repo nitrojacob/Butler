@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <driver/gpio.h>
 #include "stateProbe.h"
+#include "trap.h"
 #include "board_cfg.h"
 #include "actuator.h"
 
@@ -37,7 +38,6 @@ U8 softActuatorShadow, pinActuatorShadow;
 void actuator_reflectState(void)
 {
   int i;
-  char logmsg[32];
   U8 change, softActuatorPortIdx;
   U8 finalState[ACTUATOR_PORTS_NOF];
   for(i=0; i<ACTUATOR_PORTS_NOF; i++)
@@ -55,8 +55,7 @@ void actuator_reflectState(void)
     {
       if((change & 0x01)){
         gpio_set_level(actuatorGPIOMap[i], (finalState[0] >> i) & 0x01);
-        snprintf(logmsg, 32, "Pin %d set to %d", i, (finalState[0] >> i) & 0x01);
-        stateProbe_log(logmsg);
+        BUTLER_LOG("Pin %d set to %d", i, (finalState[0] >> i) & 0x01);
       }
       change >>= 1;
     }
