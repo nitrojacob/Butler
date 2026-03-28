@@ -81,7 +81,7 @@ static void lateInit(void * pvParameters)
   tmuRemote_init();
   nvLogRing_stateProbe_init();
 
-  BUTLER_LOG("Initilaized");
+  BUTLER_LOG("%s: Initialised", TAG);
 
   /*Kill*/
   vTaskDelete(NULL);

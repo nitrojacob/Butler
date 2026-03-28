@@ -4,6 +4,7 @@
 
 #include "stateProbe.h"
 #include "actuator.h"
+#include "trap.h"
 #include "board_cfg.h"
 #include "nvCron.h"
 
@@ -113,6 +114,7 @@ void nvCron_writeMultipleEntry(const char* inbuf, int length)
     count = CRON_MAX_ENTRIES; /*Truncate to max possible entries*/
   memcpy(buf, inbuf, count * size);
 
+  BUTLER_LOG("Modifying Cron Entries");
   for (j=0; j < count; j++)
   {
     /*Addition Pass*/
@@ -250,7 +252,7 @@ void nvCron_tick(U8 hour, U8 minute)
     /* Jumps in time by more than 1 minute. eg. due to ntp update */
     time_next = nvCron_initState(time_new);
     actuator_reflectState();
-    ESP_LOGW(TAG, "time update: New: %2d.%02d, Old: %2d.%02d, Next: %2d.%02d", time_new>>8, time_new&0xff, time_now>>8, time_now&0xff, time_next>>8, time_next&0xff);
+    BUTLER_LOG("%s: Time Update! New: %2d.%02d, Old: %2d.%02d, Next: %2d.%02d", TAG, time_new>>8, time_new&0xff, time_now>>8, time_now&0xff, time_next>>8, time_next&0xff);
     time_now = time_new;
   }
 }

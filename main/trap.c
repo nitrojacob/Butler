@@ -33,7 +33,7 @@ static stateProbe_probe clearButtonProbe;
  */
 static void cfg_reset(void)
 {
-    ESP_LOGE(TAG, "---------Resetting provisioned state----------");
+    BUTLER_LOG("---------Resetting provisioned state----------");
     ESP_ERROR_CHECK(nvs_flash_deinit());
     ESP_ERROR_CHECK(nvs_flash_erase());
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -49,21 +49,20 @@ static void cfg_reset(void)
 /**
  * @brief Wrapper function for stateProbe callback
  * This matches the signature expected by stateProbe_register (probeFn)
+ * Trigger cfg reset through MQTT message
  */
 static void cfgReset_probe_cb(const char* data, int length)
 {
-    // The stateProbe system will call this function with MQTT data
-    // We don't need to use the data, just trigger the reset
     cfg_reset();
 }
 
 /**
  * @brief Wrapper function for GPIO event handler
  * This matches the signature expected by esp_event_handler_register
+ * Trigger cfg reset through GPIO 0 button press-release
  */
 static void clearButton_cb(void* self, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-    // This is called by the GPIO interrupt handler
     cfg_reset();
 }
 
@@ -134,4 +133,5 @@ void trap_butler_log(const char* fmt, ...)
     /* Write to non-volatile ring and state probe. stateProbe_log expects char* */
     nvLogRing_write(msgbuf);
     stateProbe_log(msgbuf);
+    ESP_LOGW("PLOG", msgbuf);
 }

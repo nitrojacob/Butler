@@ -139,7 +139,6 @@ void stateProbe_init(void)
   xEventGroupWaitBits(mqtt_event, MQTT_CONNECTED, pdFALSE, pdFALSE, portMAX_DELAY);
   stateProbe_subscribePending(client);
   initDone = 1;
-  stateProbe_log("Initialized");
 }
 
 void stateProbe_startTask(void)
