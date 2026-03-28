@@ -123,7 +123,7 @@ int nvLogRing_read(uint8_t* buffer, int length) {
     entry_size = sizeof(s_nvLogRing_entry);
     snprintf(key, sizeof(key), "%s%d", NVLOGRING_NVS_KEY_ENTRY, current);
     esp_err_t err = nvs_get_blob(nvs, key, &entry, &entry_size);
-    if (err == ESP_ERR_NOT_FOUND) {
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
         buffer[0] = '-';
         buffer[1] = '\0';
         bytes_written = 2;

@@ -48,6 +48,7 @@ def reorder_messages(msgs):
 
     # If blank not found, fall back to returning msgs in the order starting at 0
     if blank_idx is None:
+        print("Unable to find Start Marker")
         # Filter out placeholders and return in the order received (best-effort)
         return [m for m in msgs if m not in ('-', '?')]
 
