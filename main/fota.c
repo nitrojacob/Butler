@@ -1,13 +1,16 @@
+#include <stdio.h>
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_system.h>
 #include <esp_log.h>
 #include <esp_https_ota.h>
 #include "stateProbe.h"
+#include "trap.h"
 #include "board_cfg.h"
 #include "fota.h"
 
-static const char TAG[] = "fota.c";
+static const char TAG[] = "fota";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
@@ -45,20 +48,22 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 static void fota_upgrade(void* noArg)
 {
   char url[BOARD_CFG_URL_SIZE] = {0};
+  char furl[BOARD_CFG_URL_SIZE + 32] = {0};
   boardCfg_get_otaHost(url, BOARD_CFG_URL_SIZE);
+  snprintf(furl, sizeof(furl), "https://%s:8070/%s", url, "butler.bin");
   esp_http_client_config_t config = {
-    .url = url,
+    .url = furl,
     .cert_pem = (char *)server_cert_pem_start,
     .event_handler = _http_event_handler,
   };
-  ESP_LOGE(TAG, "Firmware Upgrade Starting...");
+  BUTLER_LOG("Firmware Upgrade Starting from: %s", furl);
   esp_err_t ret = esp_https_ota(&config);
   if (ret == ESP_OK) {
-    ESP_LOGE(TAG, "Firmware Upgrade Successful. Restarting...");
+    BUTLER_LOG("Firmware Upgrade Successful. Restarting...");
     esp_restart();
   }
   else {
-    ESP_LOGE(TAG, "Firmware Upgrade Failed");
+    BUTLER_LOG("Firmware Upgrade Failed");
   }
 }
 

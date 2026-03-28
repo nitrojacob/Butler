@@ -77,3 +77,5 @@ CMakeCache.txt
 CMakeFiles/
 sdkconfig.old
 tools/devices.txt
+*.pem
+
