@@ -38,6 +38,7 @@ jobs:
 
       - name: Generate Certificates
         run: |
+          mkdir -p $(pwd)/esp8266-rtos-sdk/server_certs
           touch $(pwd)/esp8266-rtos-sdk/server_certs/ca_cert.pem
           touch $(pwd)/esp8266-rtos-sdk/server_certs/ca_key.pem
 
