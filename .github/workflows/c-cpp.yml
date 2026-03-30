@@ -26,9 +26,7 @@ jobs:
 
       - name: Download ESP8266 RTOS SDK v3.4
         run: |
-          wget https://github.com/espressif/ESP8266_RTOS_SDK/archive/refs/tags/v3.4.tar.gz
-          tar -xzf v3.4.tar.gz
-          mv ESP8266_RTOS_SDK-3.4 esp8266-rtos-sdk
+          git clone --branch v3.4 https://github.com/espressif/ESP8266_RTOS_SDK.git esp8266-rtos-sdk
           cd esp8266-rtos-sdk
           ./install.sh
 
