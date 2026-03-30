@@ -1,4 +1,4 @@
-name: Build Project Butler
+name: CI
 
 on:
   push:
@@ -10,19 +10,46 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      # Build the image from the v3 tag Dockerfile in the remote repo,
-      # then run the build inside a container that mounts the workspace.
-      - name: Build helper Docker image
-        run: |
-          docker build -t esp8266_rtos_sdk:v3.4 "https://github.com/nitrojacob/esp8266-rtos-sdk.git#v3"
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Build project inside container
-        run: |
-          docker run --rm esp8266_rtos_sdk:v3.4
-          
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install ESP8266 RTOS SDK dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget make gcc g++ flex bison gperf python3 python3-pip python3-setuptools
+        pip3 install pyserial
+
+    - name: Download ESP8266 RTOS SDK v3.4
+      run: |
+        wget https://github.com/espressif/ESP8266_RTOS_SDK/archive/refs/tags/v3.4.tar.gz
+        tar -xzf v3.4.tar.gz
+        mv ESP8266_RTOS_SDK-3.4 esp8266-rtos-sdk
+        cd esp8266-rtos-sdk
+        ./install.sh
+
+    - name: Set up environment
+      run: |
+        echo "ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk" >> $GITHUB_ENV
+        echo "PATH=$(pwd)/esp8266-rtos-sdk/xtensa-lx106-elf/bin:$PATH" >> $GITHUB_ENV
+
+    - name: Build project
+      run: |
+        cd $GITHUB_WORKSPACE
+        make
+
+    - name: Flash (simulated)
+      run: |
+        echo "TODO::Simulating flash: firmware built successfully"
+
+    - name: Test
+      run: |
+        echo "TODO: Running tests...Unit Testing"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
