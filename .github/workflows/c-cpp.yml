@@ -39,8 +39,7 @@ jobs:
       - name: Set environment and build
         run: |
           export ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk
-          export PATH=$(pwd)/esp8266-rtos-sdk/xtensa-lx106-elf/bin:$PATH
-          export PATH=$(pwd)/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64/xtensa-lx106-elf/bin:$PATH
+          export PATH=$(pwd)/xtensa-lx106-elf/bin:$PATH
           export IDF_PATH=$(pwd)/esp8266-rtos-sdk
           cd $GITHUB_WORKSPACE
           make all
