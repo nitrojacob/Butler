@@ -1,5 +1,5 @@
 # Project Butler
-![Build](https://github.com/nitrojacob/Butler/workflows/Build%20Project%20Butler/badge.svg)
+![Build](https://github.com/nitrojacob/Butler/workflows/CI/badge.svg)
 
 An IoT device that adheres with my fail safe IoT architecture.
 ie. If internet fails, the system operates completely within local network
