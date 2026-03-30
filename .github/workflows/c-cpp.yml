@@ -44,11 +44,13 @@ jobs:
 
     - name: Flash (simulated)
       run: |
-        echo "TODO::Simulating flash: firmware built successfully"
+        echo "TODO"
+        echo "Simulating flash: firmware built successfully"
 
     - name: Test
       run: |
-        echo "TODO: Running tests...Unit Testing"
+        echo "TODO Unit Testing"
+        echo "Running tests...Unit Testing"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
