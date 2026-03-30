@@ -29,16 +29,13 @@ jobs:
           git clone --branch v3.4 https://github.com/espressif/ESP8266_RTOS_SDK.git esp8266-rtos-sdk
           cd esp8266-rtos-sdk
           ./install.sh
+          pip3 install --user -r ./requirements.txt
 
-      - name: Set environment
+      - name: Set environment and build
         run: |
-          echo "ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk" >> $GITHUB_ENV
-          echo "PATH=$(pwd)/esp8266-rtos-sdk/xtensa-lx106-elf/bin:$PATH" >> $GITHUB_ENV
-          echo "IDF_PATH=$(pwd)/esp8266-rtos-sdk" >> $GITHUB_ENV
-          source $GITHUB_ENV
-
-      - name: Build project
-        run: |
+          export ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk
+          export PATH=$(pwd)/esp8266-rtos-sdk/xtensa-lx106-elf/bin:$PATH
+          export IDF_PATH=$(pwd)/esp8266-rtos-sdk
           cd $GITHUB_WORKSPACE
           make all
 
