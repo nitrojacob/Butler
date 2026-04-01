@@ -28,6 +28,19 @@
 
 #define MQTT_TOPIC_LEN_MAX 54
 
+#define PROBE_PROV_DATA_MAX_LEN 256
+typedef struct {
+  char * topic;
+  uint16_t out_len;
+  char outdata[PROBE_PROV_DATA_MAX_LEN];
+}s_stateProbe_prov_out_context;
+
+typedef struct {
+  char topic[MQTT_TOPIC_LEN_MAX];
+  uint16_t data_len;
+  char data[PROBE_PROV_DATA_MAX_LEN];
+}s_stateProbe_prov_context;
+
 static const char TAG[] = "stateProbe.c";
 static EventGroupHandle_t mqtt_event;
 static stateProbe_probe *probeList = NULL;
@@ -35,6 +48,7 @@ static esp_mqtt_event_handle_t context = NULL;
 static esp_mqtt_client_handle_t client;
 static char mqtt_name[]="butler0000000000000000/";
 static char initDone = 0;
+static s_stateProbe_prov_out_context provContext = {0};
 
 static void stateProbe_subscribePending(esp_mqtt_client_handle_t client)
 {
@@ -99,27 +113,34 @@ static void mqtt_cb(void* self, esp_event_base_t event_base, int32_t event_id, v
 static void stateProbe_probeCb(void* self, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
   int len_mqtt_name;
-  context = (esp_mqtt_event_handle_t)event_data;
+  esp_mqtt_event_handle_t local_context = (esp_mqtt_event_handle_t)event_data;
 
   ESP_LOGI(TAG, "MQTT_EVENT_DATA - probeCb");
   stateProbe_probe *pCurrent;
   pCurrent = probeList;
   len_mqtt_name = strlen(mqtt_name);
-  if(strncmp(context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
+  if(strncmp(local_context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
   {
     while(pCurrent != NULL)
     {
-      if(strncmp(&(context->topic[len_mqtt_name]), pCurrent->probeSymbol, strlen(pCurrent->probeSymbol)) == 0)    /*compare the subtopic*/
-        pCurrent->pProbeFn(context->data, context->data_len);
+      if(strncmp(&(local_context->topic[len_mqtt_name]), pCurrent->probeSymbol, strlen(pCurrent->probeSymbol)) == 0)    /*compare the subtopic*/
+        pCurrent->pProbeFn(local_context->data, local_context->data_len);
       pCurrent = pCurrent->pNext;
     }
   }
-  context = NULL;
+  // Don't clear the global context here as it's used in prov handler
+  // context = NULL;
 }
-
 void stateProbe_init(void)
 {
   uint8_t mac[8] = {0};
+  esp_efuse_mac_get_default(mac);
+  snprintf(mqtt_name, sizeof(mqtt_name), "butler%02x%02x%02x%02x%02x%02x%02x%02x/", mac[0], mac[1],mac[2], mac[3], mac[4], mac[5], mac[6], mac[7]);
+  ESP_LOGI(TAG, "MQTT NAME=%s", mqtt_name);
+}
+
+void stateProbe_late_init(void)
+{
   mqtt_event = xEventGroupCreate();
   char mqttBroker[BOARD_CFG_URL_SIZE] = {0};
   boardCfg_get_mqttBroker(mqttBroker, BOARD_CFG_URL_SIZE);
@@ -128,9 +149,6 @@ void stateProbe_init(void)
         .transport = MQTT_TRANSPORT_OVER_TCP,
         .client_id = mqtt_name,
   };
-  esp_efuse_mac_get_default(mac);
-  snprintf(mqtt_name, sizeof(mqtt_name), "butler%02x%02x%02x%02x%02x%02x%02x%02x/", mac[0], mac[1],mac[2], mac[3], mac[4], mac[5], mac[6], mac[7]);
-  ESP_LOGI(TAG, "MQTT NAME=%s", mqtt_name);
   client = esp_mqtt_client_init(&mqtt_cfg);
   esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_cb, client);
   esp_mqtt_client_register_event(client, MQTT_EVENT_DATA, stateProbe_probeCb, client);
@@ -152,15 +170,28 @@ void stateProbe_register(stateProbe_probe* pProbe, const char* probeSymbol, prob
   pProbe->pProbeFn = pProbeFunction;
   pProbe->subscribed = 0;
   probeList = pProbe;
-  stateProbe_subscribePending(client);
+  if(initDone)
+    stateProbe_subscribePending(client);
 }
 
 void stateProbe_write(stateProbe_probe* probe, char* buf, int len)
 {
-  char topic[MQTT_TOPIC_LEN_MAX+4];
-  esp_mqtt_client_handle_t client = context->client;
-  snprintf(topic, MQTT_TOPIC_LEN_MAX+4, "%s%sData", mqtt_name, probe->probeSymbol);
-  esp_mqtt_client_publish(client, topic, buf, len, 0, 0);
+  int len_mqtt_name = strlen(mqtt_name);
+  if (initDone){
+    char topic[MQTT_TOPIC_LEN_MAX+4];
+    esp_mqtt_client_handle_t client = context->client;
+    snprintf(topic, MQTT_TOPIC_LEN_MAX+4, "%s%sData", mqtt_name, probe->probeSymbol);
+    esp_mqtt_client_publish(client, topic, buf, len, 0, 0);
+  }
+  /* If this call has come from within the nesting of stateProbe_prov_handler, provContext-> topic
+  will be non null */
+  if(provContext.topic != NULL && strncmp(&provContext.topic[len_mqtt_name], probe->probeSymbol, strlen(probe->probeSymbol)) == 0)
+  {
+    provContext.out_len = len;
+    if(provContext.out_len > PROBE_PROV_DATA_MAX_LEN)
+      provContext.out_len = PROBE_PROV_DATA_MAX_LEN;
+    memcpy(provContext.outdata, buf, provContext.out_len);
+  }
 }
 
 void stateProbe_log(char* log)
@@ -171,4 +202,47 @@ void stateProbe_log(char* log)
     snprintf(topic, MQTT_TOPIC_LEN_MAX+4, "%slog", mqtt_name);
     esp_mqtt_client_publish(client, topic, log, strlen(log), 0, 0);
   }
+}
+
+  
+/* sProbe endpoint handler */
+esp_err_t stateProbe_prov_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
+                                       uint8_t **outbuf, ssize_t *outlen, void *priv_data)
+{
+  s_stateProbe_prov_context* context = (s_stateProbe_prov_context*)inbuf;
+  int len_mqtt_name;
+  stateProbe_probe *pCurrent;
+
+  ESP_LOGI(TAG, "sProbe provisioning handler called with topic: %s, data_len: %d", context->topic, context->data_len);
+    
+  // Check if we have enough data for the fixed structure
+  if (inlen < sizeof(char) * MQTT_TOPIC_LEN_MAX + sizeof(uint16_t)+ sizeof(char)) {
+    ESP_LOGE(TAG, "sProbe data too short");
+    return ESP_FAIL;
+  }
+  
+  provContext.topic = context->topic;
+  provContext.out_len = 0;
+
+  pCurrent = probeList;
+  len_mqtt_name = strlen(mqtt_name);
+  if(strncmp(context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
+  {
+    while(pCurrent != NULL)
+    {
+      if(strncmp(&(context->topic[len_mqtt_name]), pCurrent->probeSymbol, strlen(pCurrent->probeSymbol)) == 0)    /*compare the subtopic*/
+      {
+        pCurrent->pProbeFn(context->data, context->data_len);
+      }
+      pCurrent = pCurrent->pNext;
+    }
+  }
+  context = NULL;
+  
+  // Return success
+  ESP_LOGI(TAG, "sProbe handler writing %d data", provContext.out_len);
+  *outlen = provContext.out_len;  /* Data retained until next provisioning endpoint call */
+  *outbuf = (uint8_t*)provContext.outdata;
+  provContext.topic = NULL;
+  return ESP_OK;
 }

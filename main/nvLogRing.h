@@ -35,7 +35,4 @@ int nvLogRing_read(uint8_t* buffer, int length);
  */
 void nvLogRing_init(void);
 
-/* Initialize and register StateProbe endpoint. To be called after stateProbe initialization */
-void nvLogRing_stateProbe_init(void);
-
 #endif /* __NVLOGRING_H__ */

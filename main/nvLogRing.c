@@ -162,9 +162,7 @@ void nvLogRing_init(void) {
         }
     }
     /* HEAD always points the blank entry */
-}
 
-/* Initialize StateProbe endpoint */
-void nvLogRing_stateProbe_init(void) {
     stateProbe_register(&plogRd_probe, NVLOGRING_PROBE_ENDPOINT, nvLogRing_probe_cb);
 }
+

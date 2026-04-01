@@ -74,12 +74,11 @@ static void lateInit(void * pvParameters)
 
   gState &= 0x3;
   heartBeat_reconfigure(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1);*/
-  stateProbe_init();
+  stateProbe_late_init();
   fota_init();
   trap_late_init();
   nvCronRemote_init();
   tmuRemote_init();
-  nvLogRing_stateProbe_init();
 
   BUTLER_LOG("%s: Initialised", TAG);
 
@@ -122,6 +121,7 @@ static void tick_loop( void * pvParameters )
 
 void app_main()
 {
+  stateProbe_init();
   tmu_init();
 
   ESP_LOGI(TAG, "app_main started...");

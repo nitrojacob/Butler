@@ -100,8 +100,7 @@ static void update_ds1307_task(void * noArg)
 
 void tmuRemote_init(void)
 {
-  stateProbe_register(&get, TOKEN_GET, tmu_get);
-  stateProbe_register(&set, TOKEN_SET, tmu_set);
+  
 }
 
 void tmu_updateRTC(void)
@@ -131,4 +130,6 @@ void tmu_init(void)
     ESP_LOGW(TAG, "DS1307 not found");
   rtcInfo.day = -1;
 #endif /*BOARD_CFG_USE_DS1307*/
+  stateProbe_register(&get, TOKEN_GET, tmu_get);
+  stateProbe_register(&set, TOKEN_SET, tmu_set);
 }

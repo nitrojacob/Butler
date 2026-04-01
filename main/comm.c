@@ -5,7 +5,7 @@
  * 
  * Modes
  *                   Initial Boot --> Standalone (provisioning.c) --> Normal (main.c)
- *
+ * 
  * All non-network functionality of the device should be available in the standalone mode, where configurations can be done locally through the app.
  */
 
@@ -22,6 +22,14 @@
 #include <esp_err.h>
 #include <string.h>
 #include <stdlib.h>
+#include <esp_log.h> // Added for ESP_LOGI, ESP_LOGE, etc.
+#include <esp_err.h> // Added for ESP_ERROR_CHECK
+#include <esp_event.h> // Added for event handlers
+#include <nvs_flash.h> // Added for nvs_flash_init
+#include <esp_wifi.h> // Added for esp_wifi_init
+#include <wifi_provisioning/manager.h> // Added for wifi_prov_mgr functions
+#include <wifi_provisioning/scheme_softap.h> // Added for wifi_prov_scheme_softap
+#include <protocomm.h> // Added for protocomm functions
 
 #include "heartBeat.h"
 #include "stateProbe.h"
@@ -59,60 +67,10 @@ static s_heartBeatHandle heartBeat;
    001 (2) | Yes  | NO | Yes  | Wifi Connected
    000 (1) | Yes  | Yes| Yes  | Wifi Connected, Got IP
    State +1 is used as the heartBeat flicker count
-*/
+ */
 static volatile char gState = 0x3;
 
 static uint8_t cronBuf[CRON_MAX_ENTRIES * sizeof(s_cronEntry)] = {0};
-
-// Custom endpoint handler for cron data exchange
-static esp_err_t cron_rd_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
-                                       uint8_t **outbuf, ssize_t *outlen, void *priv_data)
-{
-    size_t size;
-
-    ESP_LOGI(TAG, "Cron rd handler called with session_id: %d, inlen: %d", session_id, inlen);
-    
-    size = nvCron_readMultipleEntry((char*)cronBuf, sizeof(cronBuf));
-    
-    *outlen = size;
-    *outbuf = cronBuf; // Since cronBuf is statically allocated, we can directly assign it to outbuf
-    
-    return ESP_OK;
-}
-
-static esp_err_t cron_wr_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
-                                       uint8_t **outbuf, ssize_t *outlen, void *priv_data)
-{
-
-    ESP_LOGI(TAG, "Cron wr handler called with session_id: %d, inlen: %d", session_id, inlen);
-    
-    if(inbuf != NULL && inlen > 0)
-    {
-        nvCron_writeMultipleEntry((const char*)inbuf, inlen);
-    }
-    
-    *outlen = sizeof(s_cronEntry);
-    *outbuf = cronBuf; // Since cronBuf is statically allocated, we can directly assign it to outbuf
-    
-    return ESP_OK;
-}
-
-static esp_err_t time_wr_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
-                                       uint8_t **outbuf, ssize_t *outlen, void *priv_data)
-{
-
-    ESP_LOGI(TAG, "Time wr handler called with session_id: %d, inlen: %d", session_id, inlen);
-    
-    if(inbuf != NULL && inlen > 0)
-    {
-        tmu_set((const char*)inbuf, inlen);
-    }
-    
-    *outlen = sizeof(s_cronEntry);
-    *outbuf = cronBuf; // Since cronBuf is statically allocated, we can directly assign it to outbuf
-    
-    return ESP_OK;
-}
 
 /* wifi_prov_mgr endpoint callback handler */
 esp_err_t plog_rd_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
@@ -195,16 +153,13 @@ static void commPreInit(void * pvParameters)
         ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
     
         // Create and register custom endpoint for cron data
-        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("cronRd"));
-        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("cronWr"));
-        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("timeWr"));
+        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("sProbe")); // Replaced timeWr with sProbe
         ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("bcfgWr"));
-        //ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create(NVLOGRING_PROBE_ENDPOINT));
 
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, WIFI_PROV_STA_DISCONNECTED, &prov_cb, NULL));
     
         
-    
+        
         // Check if device is already provisioned
         ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
         if (provisioned) {
@@ -232,11 +187,8 @@ static void commPreInit(void * pvParameters)
                                              pop,
                                              service_name,
                                              service_key));
-            ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("cronRd", cron_rd_handler, NULL));
-            ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("cronWr", cron_wr_handler, NULL));
-            ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("timeWr", time_wr_handler, NULL));
+            ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("sProbe", stateProbe_prov_handler, NULL)); // Replaced timeWr with sProbe
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("bcfgWr", boardCfg_wr_handler, NULL));
-            //ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register(NVLOGRING_PROBE_ENDPOINT, plog_rd_handler, NULL));
             ESP_LOGI(TAG, "Heap after wifi_prov_mgr_endpoint_register: %d bytes", esp_get_free_heap_size());
 
             // Wait for provisioning to complete
@@ -244,11 +196,8 @@ static void commPreInit(void * pvParameters)
         }
         ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
 
-        wifi_prov_mgr_endpoint_unregister("cronRd");
-        wifi_prov_mgr_endpoint_unregister("cronWr");
-        wifi_prov_mgr_endpoint_unregister("timeWr");
+        wifi_prov_mgr_endpoint_unregister("sProbe");
         wifi_prov_mgr_endpoint_unregister("bcfgWr");
-        //wifi_prov_mgr_endpoint_unregister(NVLOGRING_PROBE_ENDPOINT);
     
 
         // Deinitialize provisioning manager

@@ -212,12 +212,7 @@ static void cronEntryRead_cb(const char* buffer, int length)
 
 void nvCronRemote_init(void)
 {
-  stateProbe_register(&cronProbeRd, nvCronRd, cronEntryRead_cb);
-  stateProbe_register(&cronProbeWr, nvCronWr, nvCron_writeMultipleEntry);
-}
-#else /*ENABLE_NVCRON_REMOTE*/
-void nvCronRemote_init(void)
-{
+
 }
 #endif /*ENABLE_NVCRON_REMOTE*/
 
@@ -227,6 +222,10 @@ void nvCron_init(U8 hour, U8 minute)
   ESP_ERROR_CHECK(nvs_open("cron", NVS_READWRITE, &nvs));
   time_next = nvCron_initState(time_now);    /*Initialise time_next & gpio state*/
   actuator_reflectState();
+#ifdef ENABLE_NVCRON_REMOTE
+  stateProbe_register(&cronProbeRd, nvCronRd, cronEntryRead_cb);
+  stateProbe_register(&cronProbeWr, nvCronWr, nvCron_writeMultipleEntry);
+#endif /*ENABLE_NVCRON_REMOTE*/
 }
 
 void nvCron_tick(U8 hour, U8 minute)

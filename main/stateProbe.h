@@ -7,6 +7,8 @@
 #if defined(DEBUG_STATE_PROBE)
 #include <stdio.h>
 #endif /*defined(DEBUG_STATE_PROBE)*/
+#include <stdint.h>
+#include <esp_err.h>
 
 typedef void (*probeFn)(const char* data, int lenght);
 
@@ -16,6 +18,14 @@ typedef struct s_stateProbe_probe{
   probeFn pProbeFn;
   char subscribed;
 }stateProbe_probe;
+
+/* Function IDs for sProbe endpoint */
+#define SPROBE_FUNC_ID_NONE 0
+#define SPROBE_FUNC_ID_LOG 1
+#define SPROBE_FUNC_ID_CUSTOM 2
+
+/* Maximum number of registered probes */
+#define SPROBE_MAX_PROBES 10
 
 /**@brief Initialises the stateProbe module
  */
@@ -42,6 +52,9 @@ void stateProbe_write(stateProbe_probe* probe, char* buf, int len);
  */
 void stateProbe_log(char* log);
 
+esp_err_t stateProbe_prov_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
+                                       uint8_t **outbuf, ssize_t *outlen, void *priv_data);
+
 #if defined(DEBUG_STATE_PROBE)
 #define stateProbe_printf(...)\
 {\
@@ -54,5 +67,7 @@ void stateProbe_log(char* log);
 #else
   #define stateProbe_printf(...)  /* Nothing to do */
 #endif /*defined(DEBUG_STATE_PROBE)*/
+
+void stateProbe_late_init(void);
 
 #endif /*__STATEPROBE_H__*/
