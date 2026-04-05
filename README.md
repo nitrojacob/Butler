@@ -1,5 +1,5 @@
 # Project Butler
-![Build](https://github.com/nitrojacob/Butler/workflows/CI/badge.svg)
+![ESP8266 Build](https://github.com/nitrojacob/Butler/workflows/ESP8266_BUILD/badge.svg)
 
 An IoT device that adheres with my fail safe IoT architecture.
 ie. If internet fails, the system operates completely within local network

@@ -113,22 +113,21 @@ static void mqtt_cb(void* self, esp_event_base_t event_base, int32_t event_id, v
 
 static void stateProbe_probeCb(void* self, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-  esp_mqtt_event_handle_t local_context = (esp_mqtt_event_handle_t)event_data;
+  context = (esp_mqtt_event_handle_t)event_data;
 
   ESP_LOGI(TAG, "MQTT_EVENT_DATA - probeCb");
   stateProbe_probe *pCurrent;
   pCurrent = probeList;
-  if(strncmp(local_context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
+  if(strncmp(context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
   {
     while(pCurrent != NULL)
     {
-      if(strncmp(&(local_context->topic[len_mqtt_name + 1]), pCurrent->probeSymbol, strlen(pCurrent->probeSymbol)) == 0)    /*compare the subtopic*/
-        pCurrent->pProbeFn(local_context->data, local_context->data_len);
+      if(strncmp(&(context->topic[len_mqtt_name + 1]), pCurrent->probeSymbol, strlen(pCurrent->probeSymbol)) == 0)    /*compare the subtopic*/
+        pCurrent->pProbeFn(context->data, context->data_len);
       pCurrent = pCurrent->pNext;
     }
   }
-  // Don't clear the global context here as it's used in prov handler
-  // context = NULL;
+  context = NULL;
 }
 void stateProbe_init(const char* device_uname, uint8_t uname_len)
 {
