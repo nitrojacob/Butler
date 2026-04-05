@@ -29,7 +29,7 @@ typedef struct s_stateProbe_probe{
 
 /**@brief Initialises the stateProbe module
  */
-void stateProbe_init(void);
+void stateProbe_init(const char* device_uname, uint8_t len_device_uname);
 
 /**@brief Second stage of initialisation for stateProbe module
  */

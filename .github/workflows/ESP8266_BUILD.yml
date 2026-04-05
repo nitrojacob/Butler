@@ -1,4 +1,4 @@
-name: CI
+name: ESP8266_BUILD
 
 on:
   push:

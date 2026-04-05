@@ -28,6 +28,15 @@
 
 static const char TAG[] = "main.c";
 static volatile int lateInitCompleted = 0;
+char device_uname[] = "BUTLER_XXXXXX_XXXXXX"; /*Altering format requires multiple changes*/
+
+static void compute_device_uname(void)
+{
+  /*Get MAC address for unique service name*/
+  uint8_t mac[8] = {0};
+  esp_efuse_mac_get_default(mac);
+  snprintf(device_uname, sizeof(device_uname), "BUTLER_%02x%02x%02x_%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
 
 /**
  * @brief Convert reset reason to string for logging
@@ -121,7 +130,8 @@ static void tick_loop( void * pvParameters )
 
 void app_main()
 {
-  stateProbe_init();
+  compute_device_uname();
+  stateProbe_init(device_uname, sizeof(device_uname)-1);
   tmu_init();
 
   ESP_LOGI(TAG, "app_main started...");

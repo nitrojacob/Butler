@@ -54,6 +54,8 @@ typedef struct{
   U8 arg;
 } s_cronEntry;
 
+extern char device_uname[]; /*Defined in main.c*/
+
 static const char TAG[] = "comm.c";
 static os_timer_t wifiTimer;
 static s_heartBeatHandle heartBeat;
@@ -138,6 +140,7 @@ static void commPreInit(void * pvParameters)
 #endif /*CONFIG_RESET_PROVISIONED*/
     nvLogRing_init();
     tcpip_adapter_init();
+    tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, device_uname);
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
@@ -174,18 +177,15 @@ static void commPreInit(void * pvParameters)
             esp_efuse_mac_get_default(mac);
 
             // Generate unique service name and key
-            char service_name[] = "BUTLER_XXXXXX";
-            char service_key[] = "XXXXXX_XXXXXX";
+            char* service_key = &device_uname[7];   /* service key is the mac address portion of device_uname, so we need to skip first 7 chars corresponding to BUTLER_*/
             char pop[] = "12345678";  // Default value if CONFIG_POP is not defined
-            snprintf(service_name, sizeof(service_name), "BUTLER_%02x%02x%02x", mac[3], mac[4], mac[5]);
-            snprintf(service_key, sizeof(service_key), "%02x%02x%02x_%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-            ESP_LOGI(TAG, "{\"ver\":\"v1\",\"name\":\"%s\",\"password\":\"%s\",\"pop\":\"%s\",\"transport\":\"softap\",\"security\":\"1\"}", service_name, service_key, pop);
+            
+            ESP_LOGI(TAG, "{\"ver\":\"v1\",\"name\":\"%s\",\"password\":\"%s\",\"pop\":\"%s\",\"transport\":\"softap\",\"security\":\"1\"}", device_uname, service_key, pop);
 
             // Start provisioning with security version V1 (WIFI_PROV_SECURITY_1)
             ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(WIFI_PROV_SECURITY_1,
                                              pop,
-                                             service_name,
+                                             device_uname,
                                              service_key));
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("sProbe", stateProbe_prov_handler, NULL)); // Replaced timeWr with sProbe
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("bcfgWr", boardCfg_wr_handler, NULL));

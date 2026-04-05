@@ -21,10 +21,10 @@ def on_message(self, userdata, msg):
     for device in deviceList:
         if(msg.topic == device+"/log"):
             ascii = msg.payload.decode('ascii')
-            print(time.asctime(), ":", device, ":", ascii)
+            print(time.asctime(), ":", device, ":", ascii, flush=True)
             knownTopic =  True
     if not knownTopic:
-        print(time.asctime(), ":", "Unknown topic:", msg.topic, str(msg.payload))
+        print(time.asctime(), ":", "Unknown topic:", msg.topic, str(msg.payload), flush=True)
     rdSem.release()
 
 if __name__ == "__main__":
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     client.on_message = on_message
     client.connect(opt.broker)
 
-    print(time.asctime(), ": ------------------Starting logger------------------")
+    print(time.asctime(), ": ------------------Starting logger------------------", flush=True)
     
     client.loop_start()
     for device in deviceList:
@@ -60,5 +60,5 @@ if __name__ == "__main__":
         while True:
             rdSem.acquire()
     finally:
-        print(time.asctime(), ": ------------------Stopping logger------------------")
+        print(time.asctime(), ": ------------------Stopping logger------------------", flush=True)
         client.loop_stop()
