@@ -1,5 +1,12 @@
 #include <time.h>
-#include <driver/i2c.h>
+#include <esp_system.h>
+
+#ifdef CONFIG_IDF_TARGET_ESP8266
+  #include <driver/i2c.h>
+#else
+  #include <driver/i2c_master.h>
+#endif
+
 #include "board_cfg.h"
 #include "ds1307.h"
 

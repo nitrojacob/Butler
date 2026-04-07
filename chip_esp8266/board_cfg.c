@@ -7,8 +7,6 @@
 #include <nvs_flash.h>
 #include "board_cfg.h"
 
-
-
 static const char TAG[] = "board_cfg.c";
 
 /* NVS namespace and keys */

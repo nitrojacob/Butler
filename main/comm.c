@@ -9,7 +9,7 @@
  * All non-network functionality of the device should be available in the standalone mode, where configurations can be done locally through the app.
  */
 
-#include <FreeRTOS.h>
+#include <freertos/FreeRTOS.h>
 
 #include <esp_log.h>
 #include <esp_event.h>

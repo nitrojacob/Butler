@@ -51,11 +51,19 @@ static void fota_upgrade(void* noArg)
   char furl[BOARD_CFG_URL_SIZE + 32] = {0};
   boardCfg_get_otaHost(url, BOARD_CFG_URL_SIZE);
   snprintf(furl, sizeof(furl), "https://%s:8070/%s", url, "butler.bin");
+#ifdef CONFIG_IDF_TARGET_ESP8266
   esp_http_client_config_t config = {
     .url = furl,
     .cert_pem = (char *)server_cert_pem_start,
     .event_handler = _http_event_handler,
   };
+#else
+  esp_https_ota_config_t config = {
+    .url = furl,
+    .cert_pem = (char *)server_cert_pem_start,
+    .event_handler = _http_event_handler,
+  }
+#endif
   BUTLER_LOG("Firmware Upgrade Starting from: %s", furl);
   esp_err_t ret = esp_https_ota(&config);
   if (ret == ESP_OK) {
