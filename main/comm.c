@@ -22,14 +22,6 @@
 #include <esp_err.h>
 #include <string.h>
 #include <stdlib.h>
-#include <esp_log.h> // Added for ESP_LOGI, ESP_LOGE, etc.
-#include <esp_err.h> // Added for ESP_ERROR_CHECK
-#include <esp_event.h> // Added for event handlers
-#include <nvs_flash.h> // Added for nvs_flash_init
-#include <esp_wifi.h> // Added for esp_wifi_init
-#include <wifi_provisioning/manager.h> // Added for wifi_prov_mgr functions
-#include <wifi_provisioning/scheme_softap.h> // Added for wifi_prov_scheme_softap
-#include <protocomm.h> // Added for protocomm functions
 
 #include "heartBeat.h"
 #include "stateProbe.h"
@@ -47,7 +39,7 @@
 
 #define MIDNIGHT          ((24<<8) | 0)  /*MSB=24; LSB=00*/
 
-// Define the cron entry structure (same as in nvCron.c)
+/*Define the cron entry structure (same as in nvCron.c)*/
 typedef struct{
   U16 time;
   U8 func;
@@ -144,7 +136,7 @@ static void commPreInit(void * pvParameters)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    // Initialize WiFi provisioning manager with softap scheme
+    /*Initialize WiFi provisioning manager with softap scheme*/
     wifi_prov_mgr_config_t config = {
         .scheme = wifi_prov_scheme_softap,
         .scheme_event_handler = WIFI_PROV_EVENT_HANDLER_NONE,
@@ -152,11 +144,11 @@ static void commPreInit(void * pvParameters)
     };
 
     do{
-        // Initialize provisioning manager
+        /*Initialize provisioning manager*/
         ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
     
         // Create and register custom endpoint for cron data
-        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("sProbe")); // Replaced timeWr with sProbe
+        ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("sProbe"));
         ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_create("bcfgWr"));
 
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, WIFI_PROV_STA_DISCONNECTED, &prov_cb, NULL));
@@ -171,27 +163,23 @@ static void commPreInit(void * pvParameters)
         }
         else {
             ESP_LOGI(TAG, "Starting provisioning...");
-    
-            // Get MAC address for unique service name and key
-            uint8_t mac[6] = {0};
-            esp_efuse_mac_get_default(mac);
 
-            // Generate unique service name and key
+            /* Generate unique service name and key from mac*/
             char* service_key = &device_uname[7];   /* service key is the mac address portion of device_uname, so we need to skip first 7 chars corresponding to BUTLER_*/
-            char pop[] = "12345678";  // Default value if CONFIG_POP is not defined
+            char pop[] = "12345678";  /* Default value if CONFIG_POP is not defined */
             
             ESP_LOGI(TAG, "{\"ver\":\"v1\",\"name\":\"%s\",\"password\":\"%s\",\"pop\":\"%s\",\"transport\":\"softap\",\"security\":\"1\"}", device_uname, service_key, pop);
 
-            // Start provisioning with security version V1 (WIFI_PROV_SECURITY_1)
+            /* Start provisioning with security version V1 (WIFI_PROV_SECURITY_1) */
             ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(WIFI_PROV_SECURITY_1,
-                                             pop,
-                                             device_uname,
-                                             service_key));
+                                                             pop,
+                                                             device_uname,
+                                                             service_key));
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("sProbe", stateProbe_prov_handler, NULL)); // Replaced timeWr with sProbe
             ESP_ERROR_CHECK(wifi_prov_mgr_endpoint_register("bcfgWr", boardCfg_wr_handler, NULL));
             ESP_LOGI(TAG, "Heap after wifi_prov_mgr_endpoint_register: %d bytes", esp_get_free_heap_size());
 
-            // Wait for provisioning to complete
+            /* Wait for provisioning to complete */
             wifi_prov_mgr_wait();
         }
         ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
@@ -200,7 +188,7 @@ static void commPreInit(void * pvParameters)
         wifi_prov_mgr_endpoint_unregister("bcfgWr");
     
 
-        // Deinitialize provisioning manager
+        /*Deinitialize provisioning manager*/
         wifi_prov_mgr_deinit();
         ESP_ERROR_CHECK(esp_wifi_disconnect());
         ESP_ERROR_CHECK(esp_wifi_stop());
@@ -208,11 +196,10 @@ static void commPreInit(void * pvParameters)
     }while(!provisioned);
 
     /* Connect to Wi-Fi */
-    //ESP_ERROR_CHECK(wifi_prov_mgr_configure_sta(&wifi_cfg));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_cb, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &ip_cb, NULL));
 
-    // Start Wi-Fi
+    /* Start Wi-Fi */
     ESP_LOGI(TAG, "Starting Wi-Fi...");
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());

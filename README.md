@@ -14,20 +14,32 @@ Unless otherwise specified, we assume a linux ubuntu 24.04 development environme
 ## Features
 * Stateful Execution - Traditional IOT devices have an event based behaviour. Events happen and the devices respond. If device misses the event due to power failure or internet failure, the device will be in the wrong state. Here we try to calculate the expected state at each instant and the calculated state is effected.
 * Cron based on NVS Flash - Cron schedules are persistent across power cycles.
-* Configuration over MQTT - Schedules can be configured over MQTT
-* Configuration over Provisioning Interface - Schedules can be configured through provisioning interface also.
-* OTA - over the air update handled through fota.c/h
+* Two modes of operation:
+  * Standalone Mode: Configuration and monitoring over Provisioning Interface.
+  * Network Mode: Configuration and monitoring over MQTT
+* OTA - over the air firmware update handled through fota.c/h
 * Meta Actuators - Through actuator.c/h you can define more complex functions that eg. produce PWM output.
 
 ## How to Build and flash
-Depends on ESP_8266_RTOS_SDK.  
+### ESP8266
+Depends on ESP_8266_RTOS_SDK master/latest.
 
 In the root folder of this repo, you can
+* Clean: rm -rf build
 * Build: make
 * Flash: make flash
 * Monitoring the logs: make monitor
 * Configuring the project: make menuconfig
 
+### ESP32
+Depends on v6.0 of esp-idf master branch.
+In the root folder of this repo, you can
+  * Clean: rm -rf build
+  * Set Target: idf.py set-target esp32s2
+  * Build: idf.py build
+  * Flash: idf.py flash
+  * Monitor: idf.py monitor
+  * Configuring: idf.py menuconfig
 
 ## How to flash using OTA
 1. Make your changes.
@@ -42,8 +54,9 @@ In the root folder of this repo, you can
  b. openssl req -x509 -newkey rsa:2048 -keyout ca_key.pem -out ca_cert.pem -days 3660
 
 ## Configuring the Device
-Android app for configuration [is available in my other repo](https://github.com/nitrojacob/ButlerManager).  
-A set of python tools for interaction through MQTT is in tools directory.  
+* Standalone Mode: Android app for configuration [is available in my other repo](https://github.com/nitrojacob/ButlerManager).  
+* Network Mode: A set of python tools for interaction through MQTT is in tools directory.  
+  * A web-ui is avialable at [ButlerWeb](https://github.com/nitrojacob/ButlerWeb)  
 
 ## Common Problems
 ### MQTT not connecting.

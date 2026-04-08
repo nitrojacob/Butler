@@ -78,4 +78,4 @@ CMakeFiles/
 sdkconfig.old
 tools/devices.txt
 *.pem
-
+managed_components/
