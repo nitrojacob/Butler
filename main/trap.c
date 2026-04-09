@@ -133,5 +133,5 @@ void trap_butler_log(const char* fmt, ...)
     /* Write to non-volatile ring and state probe. stateProbe_log expects char* */
     nvLogRing_write(msgbuf);
     stateProbe_log(msgbuf);
-    ESP_LOGW("PLOG", msgbuf);
+    ESP_LOGW("PLOG", "%s", msgbuf);
 }
