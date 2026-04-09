@@ -1,13 +1,20 @@
 #ifndef __HEARTBEAT_H__
 #define __HEARTBEAT_H__
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/timers.h>
+
+
 typedef struct{
-  os_timer_t      alert;
+  TimerHandle_t   alert;
   uint32_t        period;
   uint8_t         ticks;
   uint8_t         cursor;
   uint8_t         pin;
+  void*           nextFunction;
 }s_heartBeatHandle;
+
+typedef void heartBeat_cb(s_heartBeatHandle*);
 
 /**
  * @brief Initialises a heartBeat indicator (a blinking led) on the specified port and offset.
