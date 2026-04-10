@@ -131,7 +131,7 @@ static void stateProbe_probeCb(void* self, esp_event_base_t event_base, int32_t 
 }
 void stateProbe_init(const char* device_uname, uint8_t uname_len)
 {
-  mqtt_name = device_uname;
+  mqtt_name = (char*)device_uname;
   len_mqtt_name = uname_len;
   ESP_LOGI(TAG, "MQTT NAME=%s", mqtt_name);
 }
@@ -141,11 +141,26 @@ void stateProbe_late_init(void)
   mqtt_event = xEventGroupCreate();
   char mqttBroker[BOARD_CFG_URL_SIZE] = {0};
   boardCfg_get_mqttBroker(mqttBroker, BOARD_CFG_URL_SIZE);
+#ifdef CONFIG_IDF_TARGET_ESP8266
   esp_mqtt_client_config_t mqtt_cfg = {
-        .host = mqttBroker,
-        .transport = MQTT_TRANSPORT_OVER_TCP,
-        .client_id = mqtt_name,
+    .host = mqttBroker,
+    .transport = MQTT_TRANSPORT_OVER_TCP,
+    .client_id = mqtt_name,
   };
+#else
+  esp_mqtt_client_config_t mqtt_cfg = {
+    .broker = {
+      .address = {
+        .hostname = mqttBroker,
+        .transport = MQTT_TRANSPORT_OVER_TCP,
+      }
+    },
+    .credentials = {
+      .client_id = mqtt_name,
+    }
+  };
+#endif
+
   client = esp_mqtt_client_init(&mqtt_cfg);
   esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_cb, client);
   esp_mqtt_client_register_event(client, MQTT_EVENT_DATA, stateProbe_probeCb, client);

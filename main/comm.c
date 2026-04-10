@@ -9,19 +9,27 @@
  * All non-network functionality of the device should be available in the standalone mode, where configurations can be done locally through the app.
  */
 
+#include <string.h>
+#include <stdlib.h>
+
 #include <freertos/FreeRTOS.h>
+#include <freertos/timers.h>
 
 #include <esp_log.h>
 #include <esp_event.h>
 #include <nvs_flash.h>
 #include <esp_wifi.h>
-#include <wifi_provisioning/manager.h>
-#include <wifi_provisioning/scheme_softap.h>
+#ifdef CONFIG_IDF_TARGET_ESP8266
+    #include <wifi_provisioning/manager.h>
+    #include <wifi_provisioning/scheme_softap.h>
+#else
+    #include <network_provisioning/manager.h>
+    #include <network_provisioning/scheme_softap.h>
+    #include <esp_netif.h>
+#endif
 #include <esp_system.h>
 #include <protocomm.h>
 #include <esp_err.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include "heartBeat.h"
 #include "stateProbe.h"
@@ -30,6 +38,30 @@
 #include "tmu.h"
 #include "trap.h"
 #include "board_cfg.h"
+
+#ifndef CONFIG_IDF_TARGET_ESP8266
+    #define WIFI_PROV_EVENT                     NETWORK_PROV_EVENT
+    #define WIFI_PROV_STA_DISCONNECTED          NETWORK_PROV_WIFI_STA_DISCONNECTED
+    #define WIFI_PROV_SECURITY_1                NETWORK_PROV_SECURITY_1
+    #define WIFI_PROV_EVENT_HANDLER_NONE        NETWORK_PROV_EVENT_HANDLER_NONE
+    #define wifi_prov_mgr_config_t              network_prov_mgr_config_t
+    #define wifi_prov_scheme_softap             network_prov_scheme_softap
+    #define wifi_prov_mgr_init                  network_prov_mgr_init
+    #define wifi_prov_mgr_start_provisioning    network_prov_mgr_start_provisioning
+    #define wifi_prov_mgr_stop_provisioning     network_prov_mgr_stop_provisioning
+    #define wifi_prov_mgr_is_provisioned        network_prov_mgr_is_wifi_provisioned
+    #define wifi_prov_mgr_endpoint_create       network_prov_mgr_endpoint_create
+    #define wifi_prov_mgr_wait                  network_prov_mgr_wait
+    #define wifi_prov_mgr_endpoint_register     network_prov_mgr_endpoint_register
+    #define wifi_prov_mgr_endpoint_unregister   network_prov_mgr_endpoint_unregister
+    #define wifi_prov_mgr_deinit                network_prov_mgr_deinit
+
+    #define tcpip_adapter_init()                esp_netif_t* sta_netif;\
+                                                do{ esp_netif_init();\
+                                                sta_netif = esp_netif_create_default_wifi_sta();\
+                                                }while(0)
+    #define tcpip_adapter_set_hostname(x,hostname)          esp_netif_set_hostname(sta_netif, hostname)
+#endif
 
 #define COMM_STACK_SIZE 4096
 
@@ -49,7 +81,7 @@ typedef struct{
 extern char device_uname[]; /*Defined in main.c*/
 
 static const char TAG[] = "comm.c";
-static os_timer_t wifiTimer;
+static TimerHandle_t wifiTimer;
 static s_heartBeatHandle heartBeat;
 
 /* States: MSB for Time, Then for WiFi, Then for IP
@@ -93,8 +125,9 @@ static void ip_cb(void* self, esp_event_base_t event_base, int32_t event_id, voi
     heartBeat_reconfigure(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1);
 }
 
-static void wifiTimerCb(void* unused)
+static void wifiTimerCb(TimerHandle_t unused)
 {
+    xTimerDelete(wifiTimer, 0);
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
@@ -104,8 +137,8 @@ static void wifi_cb(void* self, esp_event_base_t event_base, int32_t event_id, v
     if(event_id == WIFI_EVENT_STA_START){
         ESP_ERROR_CHECK(esp_wifi_connect());
     }else if(event_id == WIFI_EVENT_STA_DISCONNECTED){
-        os_timer_setfn(&wifiTimer, wifiTimerCb, NULL);
-        os_timer_arm(&wifiTimer, BOARD_CFG_WIFI_RETRY_DELAY, 0);
+        wifiTimer = xTimerCreate("wifi", BOARD_CFG_WIFI_RETRY_DELAY/portTICK_PERIOD_MS, pdFALSE, (void*) NULL, wifiTimerCb);
+        xTimerStart(wifiTimer, 0);
         gState |= 0x2;
         heartBeat_reconfigure(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1);
     }

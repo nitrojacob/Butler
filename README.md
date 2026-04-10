@@ -1,5 +1,6 @@
 # Project Butler
 ![ESP8266 Build](https://github.com/nitrojacob/Butler/workflows/ESP8266_BUILD/badge.svg)
+![ESP32 Build](https://github.com/nitrojacob/Butler/workflows/ESP32_BUILD/badge.svg)
 
 An IoT device that adheres with my fail safe IoT architecture.
 ie. If internet fails, the system operates completely within local network
@@ -26,16 +27,18 @@ Depends on ESP_8266_RTOS_SDK master/latest.
 
 In the root folder of this repo, you can
 * Clean: rm -rf build
+* Config: cp chip_esp8266/sdkconfig .
 * Build: make
 * Flash: make flash
-* Monitoring the logs: make monitor
+* Monitor: make monitor
 * Configuring the project: make menuconfig
 
 ### ESP32
 Depends on v6.0 of esp-idf master branch.
 In the root folder of this repo, you can
   * Clean: rm -rf build
-  * Set Target: idf.py set-target esp32s2
+  * Set Target: idf.py set-target esp32
+  * Config: cp chip_esp32/sdkconfig .
   * Build: idf.py build
   * Flash: idf.py flash
   * Monitor: idf.py monitor

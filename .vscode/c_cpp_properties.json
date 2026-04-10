@@ -1,10 +1,22 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "ESP866",
             "includePath": [
                 "${workspaceFolder}/**",
                 "/mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "ESP32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/mnt/prog/programs/esp/esp-idf/components/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

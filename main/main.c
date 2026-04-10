@@ -9,9 +9,13 @@
 #include <esp_event.h>
 #include <esp_log.h>
 
+#include <esp_netif.h>
 #include <lwip/apps/sntp.h>
 #include <esp_task_wdt.h>
 #include <esp_system.h>
+#ifndef CONFIG_IDF_TARGET_ESP8266
+  #include <esp_mac.h>  /*In ESP8266 the function esp_efuse_mac_get_default() is defined in esp_system.h*/
+#endif
 #include <nvs_flash.h>
 #include <mqtt_client.h>
 
@@ -55,7 +59,9 @@ static const char* reset_reason_to_string(esp_reset_reason_t reason)
         case ESP_RST_DEEPSLEEP:  return "Deep Sleep";
         case ESP_RST_BROWNOUT:   return "Brownout";
         case ESP_RST_SDIO:       return "SDIO";
+#ifdef CONFIG_IDF_TARGET_ESP8266
         case ESP_RST_FAST_SW:    return "Fast Software";
+#endif
         default:                 return "Unknown";
     }
 }

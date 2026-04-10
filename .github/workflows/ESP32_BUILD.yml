@@ -1,0 +1,54 @@
+name: ESP32_BUILD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install ESP IDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget make gcc g++ flex bison gperf python3 python3-pip python3-setuptools
+          pip3 install pyserial
+
+      - name: Download ESP IDF master v6.0
+        run: |
+          git clone https://github.com/espressif/esp-idf.git esp-idf
+          cd esp-idf
+          git checkout v6.0
+          ./install.sh
+          source ./export.sh
+
+      - name: Generate Certificates
+        run: |
+          mkdir -p $(pwd)/server_certs
+          touch $(pwd)/server_certs/ca_cert.pem
+          touch $(pwd)/server_certs/ca_key.pem
+
+      - name: Set environment and build
+        run: |
+          cd $GITHUB_WORKSPACE
+          idf.py set-target esp32
+          cp chip_esp32/sdkconfig .
+          idf.py build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            build/*.bin
+            build/*.map

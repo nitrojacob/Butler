@@ -52,7 +52,7 @@ void heartBeat_init(s_heartBeatHandle* handle, uint32_t period, uint8_t ticks, u
   handle->pin = pin;
   handle->nextFunction = heartBeat_led_on;
   handle->alert = xTimerCreate("hb", handle->period/portTICK_PERIOD_MS, pdFALSE, (void*) handle, heartBeat_common_cb);
-  xTimerStart(handle->alert, handle->period/portTICK_PERIOD_MS);
+  xTimerStart(handle->alert, MAX_WAIT);
   gpio_set_direction(handle->pin, GPIO_MODE_OUTPUT);
 }
 

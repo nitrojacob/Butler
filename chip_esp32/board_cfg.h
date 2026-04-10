@@ -24,8 +24,8 @@
 
 #define BOARD_CFG_WIFI_RETRY_DELAY        10000
 
-#define I2C_MASTER_SCL_IO           TODO               /*!< gpio number for I2C master clock */
-#define I2C_MASTER_SDA_IO           TODO               /*!< gpio number for I2C master data  */
+#define I2C_MASTER_SCL_IO           1               /*!< gpio number for I2C master clock */
+#define I2C_MASTER_SDA_IO           2               /*!< gpio number for I2C master data  */
 
 /* Undefine BOARD_CFG_USE_DS1307 if you want to reclaim the SCL and SDA pins for something else. If this config is enabled
    We will see if a DS1307 is available on the SCL and SDA lines defined above. And use its time if one is found. If not found,

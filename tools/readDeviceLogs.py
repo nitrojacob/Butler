@@ -8,6 +8,7 @@ Behaviour (matching nvLogRing.c):
 - Publish an empty message to <prefix>plogRd to request one log entry. Each request advances the
   device-side read pointer.
 - Repeat up to NVLOGRING_MAX_ENTRIES+1 times (default 32+1) to retrieve the entire ring buffer.
+- Stop early if the first non-empty message (not '-', not '?') is received again.
 - The device will return a single entry per request. A blank entry is indicated by a payload
   starting with '-' (single dash + NUL). Use its position to reorder collected messages so that
   output is oldest -> newest.
@@ -25,8 +26,7 @@ import paho.mqtt.client as mqtt
 
 
 DEFAULT_BROKER = 'iothub.local'
-# Default NVLOGRING_MAX_ENTRIES from main/board_cfg.h
-DEFAULT_MAX_ENTRIES = 32
+DEFAULT_MAX_ENTRIES = 100
 
 
 def reorder_messages(msgs):
@@ -108,6 +108,9 @@ def main():
     time.sleep(0.2)
 
     total_requests = args.max_entries + 1
+    
+    # Keep track of the first non-empty message received to know when to stop early
+    first_non_empty_message = None
 
     for i in range(total_requests):
         # Publish empty payload to request one entry
@@ -119,7 +122,15 @@ def main():
             if not got:
                 # No message received for this request
                 received.append('?')
-            # else on_message already appended
+            else:
+                # Message received
+                # Check if this is the first non-empty message (not '-' or '?')
+                if first_non_empty_message is None and received[-1] not in ('-', '?'):
+                    first_non_empty_message = received[-1]
+                # If we've seen the first non-empty message again, stop early
+                elif first_non_empty_message is not None and received[-1] == first_non_empty_message:
+                    received.pop() #Discard the last received message which is redundant
+                    break
 
     client.loop_stop()
     client.disconnect()

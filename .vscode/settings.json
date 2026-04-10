@@ -13,6 +13,12 @@
         "esp_event_base.h": "c",
         "types.h": "c",
         "stdint-gcc.h": "c",
-        "format": "c"
+        "format": "c",
+        "esp_system.h": "c",
+        "esp_wifi.h": "c",
+        "esp_netif.h": "c",
+        "esp_netif_types.h": "c",
+        "i2c.h": "c",
+        "i2c_master.h": "c"
     }
 }
