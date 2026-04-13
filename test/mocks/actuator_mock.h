@@ -14,5 +14,6 @@ bool actuator_mock_get_reflectState_called(void);
 int actuator_mock_get_on_count(void);
 int actuator_mock_get_off_count(void);
 int actuator_mock_get_reflectState_count(void);
+int actuator_mock_get_state(void);
 
 #endif // ACTUATOR_MOCK_H

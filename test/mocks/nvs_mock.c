@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "esp_err.h"
+#include <esp_err.h>
 
 typedef struct {
     char key[64];
@@ -50,16 +50,14 @@ esp_err_t nvs_open(const char* name, nvs_open_mode_t mode, nvs_handle_t* out_han
     return ESP_OK;
 }
 
-esp_err_t nvs_close(nvs_handle_t handle)
+void nvs_close(nvs_handle_t handle)
 {
     (void)handle;
-    return ESP_OK;
 }
 
 esp_err_t nvs_set_blob(nvs_handle_t handle, const char* key, const void* data, size_t size)
 {
     (void)handle;
-    printf("[nvs_mock] set_blob key=%s size=%zu\n", key, size);
     int idx = find_key_index(key);
     if (idx >= 0) {
         free(mock_entries[idx].data);

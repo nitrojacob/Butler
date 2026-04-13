@@ -19,6 +19,11 @@
         "esp_netif.h": "c",
         "esp_netif_types.h": "c",
         "i2c.h": "c",
-        "i2c_master.h": "c"
+        "i2c_master.h": "c",
+        "esp_err.h": "c",
+        "nvs_mock.h": "c",
+        "tmu_mock.h": "c",
+        "test_cases.h": "c",
+        "actuator_mock.h": "c"
     }
 }

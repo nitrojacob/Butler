@@ -1,0 +1,31 @@
+name: ESP8266_TESTS
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Download ESP8266 RTOS SDK master latest
+        run: |
+          git clone https://github.com/espressif/ESP8266_RTOS_SDK.git esp8266-rtos-sdk
+
+      - name: Set environment and build
+        run: |
+          export ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk
+          export IDF_PATH=$(pwd)/esp8266-rtos-sdk
+          cd $GITHUB_WORKSPACE/test
+          ./run_test.sh
+

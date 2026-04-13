@@ -55,6 +55,12 @@ add_executable(test_runner
 # Define __ESP_FILE__ macro to bypass ESP_ERROR_CHECK reliance on __FILE__
 target_compile_definitions(test_runner PRIVATE __ESP_FILE__=__BASE_FILE__)
 
+# Build with debug symbols and no optimization to aid debugging the test runner.
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+target_compile_options(test_runner PRIVATE -g -O0)
+# Pass -g to linker as well to ensure debug sections are preserved
+target_link_options(test_runner PRIVATE -g)
+
 # Link libraries
 target_link_libraries(test_runner
     m

@@ -261,19 +261,39 @@ void test_nvCron_init_and_tick_single_minute_no_action(void)
     TEST_ASSERT_EQUAL(0, actuator_mock_get_off_count());
 }
 
-void test_nvCron_trigger_on_at_exact_minute(void)
+void test_nvCron_initial_state_off(void)
 {
-    // Arrange: add an entry at 10:01 to turn actuator 1 ON
-    s_cronEntry entry = { .time = (10<<8) | 1, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
-    char key[7];
-    snprintf(key, sizeof(key), "cron%02d", 0);
-    nvs_set_blob_simple(key, &entry, sizeof(entry));
+    /* Arrange: add entries at 10:05 to turn actuator 1 ON
+                           and 10:30 to turn actuator 1 OFF*/
+    s_cronEntry e1 = { .time = (10<<8) | 5, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
 
-    // Init at 10:00 and tick to 10:01
+    s_cronEntry e2 = { .time = (10<<8) | 30, .func = CRON_FUNC_RELAY_OFF, .arg = 1 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
+
+    // Init at 10:00; Actuator should be off.
     nvCron_init(10, 0);
-    nvCron_tick(10, 1);
 
-    // Expect actuator_on to have been called once
+    // Expect actuator to be in off state
+    TEST_ASSERT_EQUAL(0, actuator_mock_get_state());
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_off_count());
+}
+
+void test_nvCron_initial_state_on(void)
+{
+    /* Arrange: add entries at 10:05 to turn actuator 1 ON
+                           and 10:30 to turn actuator 1 OFF*/
+    s_cronEntry e1 = { .time = (10<<8) | 5, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
+
+    s_cronEntry e2 = { .time = (10<<8) | 30, .func = CRON_FUNC_RELAY_OFF, .arg = 1 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
+
+    // Init at 10:10; Actuator should be on.
+    nvCron_init(10, 10);
+
+    // Expect actuator to be in off state
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_state());
     TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
 }
 
@@ -287,34 +307,40 @@ void test_nvCron_trigger_off_on_hour_change_and_day_change(void)
 
     // Init at 23:58 then tick to 23:59 and then to 00:00
     nvCron_init(23, 58);
+    /* Initail state will be ON */
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
     nvCron_tick(23, 59);
     // OFF should have been called
     TEST_ASSERT_EQUAL(1, actuator_mock_get_off_count());
     nvCron_tick(0, 0);
     // ON should have been called
-    TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
+    TEST_ASSERT_EQUAL(2, actuator_mock_get_on_count());
 }
 
 void test_nvCron_time_jump_more_than_one_minute_reinitialises(void)
 {
     // Arrange: an entry at 12:30 to turn on
-    s_cronEntry entry = { .time = (12<<8) | 30, .func = CRON_FUNC_RELAY_ON, .arg = 3 };
-    nvs_set_blob_simple("cron00", &entry, sizeof(entry));
+    s_cronEntry e1 = { .time = (12<<8) | 30, .func = CRON_FUNC_RELAY_ON, .arg = 3 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
+    s_cronEntry e2 = { .time = (12<<8) | 40, .func = CRON_FUNC_RELAY_OFF, .arg = 3 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
 
     // Init at 12:00
     nvCron_init(12, 0);
     // Simulate jump to 12:35 (greater than 1 minute) - should reinit and not trigger missed 12:30
     nvCron_tick(12, 35);
-    // No on call because we jumped past the event
-    TEST_ASSERT_EQUAL(0, actuator_mock_get_on_count());
+    // Should get on call though we jumped past the event
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
 }
 
 // New tests
 void test_nvCron_multiple_ticks_same_minute_no_duplicate_trigger(void)
 {
     // Arrange: entry at 14:10 -> ON actuator 1
-    s_cronEntry entry = { .time = (14<<8) | 10, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
-    nvs_set_blob_simple("cron00", &entry, sizeof(entry));
+    s_cronEntry e1 = { .time = (14<<8) | 10, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
+    s_cronEntry e2 = { .time = (14<<8) | 20, .func = CRON_FUNC_RELAY_ON, .arg = 1 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
 
     // Init at 14:09 -> tick to 14:10 twice
     nvCron_init(14, 9);
@@ -334,10 +360,11 @@ void test_nvCron_consecutive_minutes_triggers(void)
     nvs_set_blob_simple("cron01", &e_off, sizeof(e_off));
 
     nvCron_init(15, 4);
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_off_count()); /*initial state*/
     nvCron_tick(15, 5);
     TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
     nvCron_tick(15, 6);
-    TEST_ASSERT_EQUAL(1, actuator_mock_get_off_count());
+    TEST_ASSERT_EQUAL(2, actuator_mock_get_off_count());
 }
 
 void test_nvCron_multiple_entries_same_minute_all_trigger(void)
@@ -346,33 +373,45 @@ void test_nvCron_multiple_entries_same_minute_all_trigger(void)
     s_cronEntry e1 = { .time = (16<<8) | 20, .func = CRON_FUNC_RELAY_ON,  .arg = 1 };
     s_cronEntry e2 = { .time = (16<<8) | 20, .func = CRON_FUNC_RELAY_OFF, .arg = 2 };
     s_cronEntry e3 = { .time = (16<<8) | 20, .func = CRON_FUNC_RELAY_ON,  .arg = 3 };
+    s_cronEntry e1_ = { .time = (16<<8) | 22, .func = CRON_FUNC_RELAY_OFF,  .arg = 1 };
+    s_cronEntry e2_ = { .time = (16<<8) | 22, .func = CRON_FUNC_RELAY_ON, .arg = 2 };
+    s_cronEntry e3_ = { .time = (16<<8) | 22, .func = CRON_FUNC_RELAY_OFF,  .arg = 3 };
     nvs_set_blob_simple("cron00", &e1, sizeof(e1));
     nvs_set_blob_simple("cron01", &e2, sizeof(e2));
     nvs_set_blob_simple("cron02", &e3, sizeof(e3));
+    nvs_set_blob_simple("cron03", &e1_, sizeof(e1_));
+    nvs_set_blob_simple("cron04", &e2_, sizeof(e2_));
+    nvs_set_blob_simple("cron05", &e3_, sizeof(e3_));
 
     nvCron_init(16, 19);
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count()); /*Initial State*/
+    TEST_ASSERT_EQUAL(2, actuator_mock_get_off_count());/*Initial State*/
     nvCron_tick(16, 20);
-    TEST_ASSERT_EQUAL(2, actuator_mock_get_on_count());
-    TEST_ASSERT_EQUAL(1, actuator_mock_get_off_count());
+    TEST_ASSERT_EQUAL(3, actuator_mock_get_on_count());
+    TEST_ASSERT_EQUAL(3, actuator_mock_get_off_count());
 }
 
 void test_nvCron_hour_jump_more_than_one_hour_reinitialises(void)
 {
     // Arrange: entry at 08:30
-    s_cronEntry entry = { .time = (8<<8) | 30, .func = CRON_FUNC_RELAY_ON, .arg = 4 };
-    nvs_set_blob_simple("cron00", &entry, sizeof(entry));
+    s_cronEntry e1 = { .time = (8<<8) | 30, .func = CRON_FUNC_RELAY_ON, .arg = 4 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
+    s_cronEntry e2 = { .time = (10<<8) | 30, .func = CRON_FUNC_RELAY_OFF, .arg = 4 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
 
-    // Init at 06:00, jump to 08:30 (large jump) -> should not trigger missed event
+    // Init at 06:00, jump to 08:30 (large jump) -> should turn on relay
     nvCron_init(6, 0);
     nvCron_tick(8, 30);
-    TEST_ASSERT_EQUAL(0, actuator_mock_get_on_count());
+    TEST_ASSERT_EQUAL(1, actuator_mock_get_on_count());
 }
 
 void test_nvCron_before_and_after_hour_change_non_midnight(void)
 {
     // Arrange: entry at 10:00 ON
-    s_cronEntry entry = { .time = (10<<8) | 0, .func = CRON_FUNC_RELAY_ON, .arg = 5 };
-    nvs_set_blob_simple("cron00", &entry, sizeof(entry));
+    s_cronEntry e1 = { .time = (10<<8) | 0, .func = CRON_FUNC_RELAY_ON, .arg = 5 };
+    nvs_set_blob_simple("cron00", &e1, sizeof(e1));
+    s_cronEntry e2 = { .time = (10<<8) | 30, .func = CRON_FUNC_RELAY_OFF, .arg = 5 };
+    nvs_set_blob_simple("cron01", &e2, sizeof(e2));
 
     // Init at 9:59, tick to 10:00 then 10:01
     nvCron_init(9, 59);

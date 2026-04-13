@@ -29,16 +29,17 @@ int main(void)
     RUN_TEST(test_nvCron_writeMultipleEntry_single_entry);
     RUN_TEST(test_nvCron_writeMultipleEntry_multiple_entries);
     RUN_TEST(test_nvCron_writeMultipleEntry_zero_entries);
-    RUN_TEST(test_nvCron_writeMultipleEntry_exceed_max);
+    RUN_TEST(test_nvCron_writeMultipleEntry_exceed_max);  /*Fix TODO*/
 
     /* New nvCron behavioral tests */
-    RUN_TEST(test_nvCron_init_and_tick_single_minute_no_action);
-    RUN_TEST(test_nvCron_trigger_on_at_exact_minute);
+    RUN_TEST(test_nvCron_init_and_tick_single_minute_no_action); /*Fix TODO*/
+    RUN_TEST(test_nvCron_initial_state_off);
+    RUN_TEST(test_nvCron_initial_state_on);
     RUN_TEST(test_nvCron_trigger_off_on_hour_change_and_day_change);
     RUN_TEST(test_nvCron_time_jump_more_than_one_minute_reinitialises);
-    RUN_TEST(test_nvCron_multiple_ticks_same_minute_no_duplicate_trigger);
+    RUN_TEST(test_nvCron_multiple_ticks_same_minute_no_duplicate_trigger); /*Fix TODO*/
     RUN_TEST(test_nvCron_consecutive_minutes_triggers);
-    RUN_TEST(test_nvCron_multiple_entries_same_minute_all_trigger);
+    RUN_TEST(test_nvCron_multiple_entries_same_minute_all_trigger); /*Fix TODO*/
     RUN_TEST(test_nvCron_hour_jump_more_than_one_hour_reinitialises);
     RUN_TEST(test_nvCron_before_and_after_hour_change_non_midnight);
 

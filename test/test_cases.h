@@ -12,6 +12,10 @@ void test_nvCron_writeMultipleEntry_zero_entries(void);
 void test_nvCron_writeMultipleEntry_exceed_max(void);
 void test_nvCron_setup(void);
 void test_nvCron_teardown(void);
+
+void test_nvCron_initial_state_off(void);
+void test_nvCron_initial_state_on(void);
+
 void test_nvCron_init_and_tick_single_minute_no_action(void);
 void test_nvCron_trigger_on_at_exact_minute(void);
 void test_nvCron_trigger_off_on_hour_change_and_day_change(void);
