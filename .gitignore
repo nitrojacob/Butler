@@ -79,3 +79,5 @@ sdkconfig.old
 tools/devices.txt
 *.pem
 managed_components/
+test/cmock
+test/unity

@@ -23,7 +23,19 @@
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64"
-        }
+        },
+        {
+            "name": "UnitTest",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
     ],
     "version": 4
 }

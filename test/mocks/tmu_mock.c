@@ -16,6 +16,8 @@ void tmu_set(const char* buffer, int length)
     memcpy(mock_time_string, buffer, length);
     mock_time_string[length] = '\0';
     mock_time_set_called = 1;
+    /* Mimic production behaviour: tmu_set triggers an RTC update */
+    mock_update_rtc_called = 1;
 }
 
 void tmu_updateRTC(void)

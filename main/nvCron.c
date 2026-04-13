@@ -236,7 +236,14 @@ void nvCron_tick(U8 hour, U8 minute)
   {
     /*time_new == time_now. The most common case. Time has not changed. Yet we got a call. No action required*/
   }
-  else if((time_new == (time_now +1)) || (time_new == (time_now+197)))
+  else if (
+    /* Immediate next minute */
+    (time_new == (time_now + 1)) ||
+    /* Hour turn: x:59 -> x+1:00 (197 == (1<<8) - 59) used in original code) */
+    (time_new == (time_now + 197)) ||
+    /* Day turn: 23:59 -> 00:00 */
+    ((time_new == 0) && (time_now == ((23 << 8) | 59)))
+   )
   {
     /*The time incremented by 1 minute. We need to see if any action is due.*/
     time_now = time_new;

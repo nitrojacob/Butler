@@ -1,5 +1,7 @@
 #include "time_mock.h"
 #include <time.h>
+#include <sys/time.h>
+#include <stdio.h>
 
 static time_t mock_time = 0;
 static time_t mock_mktime_result = 0;
@@ -61,5 +63,9 @@ time_t mktime(struct tm *tm)
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
     mock_settimeofday_called = true;
+    if (tv) {
+        mock_time = tv->tv_sec;
+        printf("DEBUG: settimeofday called with tv_sec=%ld\n", (long)tv->tv_sec);
+    }
     return mock_settimeofday_result;
 }
