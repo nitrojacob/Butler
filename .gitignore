@@ -81,3 +81,4 @@ tools/devices.txt
 managed_components/
 test/cmock
 test/unity
+test/test_runner

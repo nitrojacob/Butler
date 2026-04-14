@@ -6,6 +6,12 @@ project(esp8266_unit_tests)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Use IDF_PATH from the environment instead of hardcoded SDK paths
+set(IDF_PATH $ENV{IDF_PATH})
+if(NOT IDF_PATH)
+    message(FATAL_ERROR "Environment variable IDF_PATH is not set. Please export IDF_PATH to your ESP8266 RTOS SDK path.")
+endif()
+
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/unity/src
@@ -13,21 +19,21 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/../main
     ${CMAKE_CURRENT_SOURCE_DIR}/../chip_esp8266
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/nvs_flash/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/esp_system/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/esp_log/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/esp8266/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/esp_common/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/log/include
+    ${IDF_PATH}/components/nvs_flash/include
+    ${IDF_PATH}/components/esp_system/include
+    ${IDF_PATH}/components/esp_log/include
+    ${IDF_PATH}/components/esp8266/include
+    ${IDF_PATH}/components/esp_common/include
+    ${IDF_PATH}/components/log/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../build/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include/freertos
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/include/freertos/private
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/heap/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/heap/port/esp8266/include
-    /mnt/prog/programs/esp/ESP8266_RTOS_SDK/components/freertos/port/esp8266/include
+    ${IDF_PATH}/components/freertos/include
+    ${IDF_PATH}/components/freertos/include/freertos
+    ${IDF_PATH}/components/freertos/port/esp8266/include/freertos
+    ${IDF_PATH}/components/freertos/port/esp8266/include
+    ${IDF_PATH}/components/freertos/include/freertos/private
+    ${IDF_PATH}/components/heap/include
+    ${IDF_PATH}/components/heap/port/esp8266/include
+    ${IDF_PATH}/components/freertos/port/esp8266/include
 )
 
 # Source files - Include mocks, test files, and test framework (no production code)
