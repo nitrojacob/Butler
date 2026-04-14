@@ -58,9 +58,11 @@ In the root folder of this repo, you can
  b. openssl req -x509 -newkey rsa:2048 -keyout ca_key.pem -out ca_cert.pem -days 3660
 
 ## Configuring the Device
-* Standalone Mode: Android app for configuration [is available in my other repo](https://github.com/nitrojacob/ButlerManager).  
-* Network Mode: A set of python tools for interaction through MQTT is in tools directory.  
-  * A web-ui is avialable at [ButlerWeb](https://github.com/nitrojacob/ButlerWeb)  
+* Standalone Mode: [ButlerManager](https://github.com/nitrojacob/ButlerManager) Android app.  
+* Network Mode: 
+    * A set of python tools for interaction through MQTT is in tools directory.  
+    * [ButlerManager](https://github.com/nitrojacob/ButlerManager) Android app.  
+    * A web-ui is avialable at [ButlerWeb](https://github.com/nitrojacob/ButlerWeb). But is not very current and hence not recommended  
 
 ## Common Problems
 ### MQTT not connecting.

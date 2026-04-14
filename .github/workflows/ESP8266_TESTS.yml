@@ -18,14 +18,25 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Install ESP8266 RTOS SDK dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget make gcc g++ flex bison gperf python3 python3-pip python3-setuptools
+          pip3 install pyserial
+
       - name: Download ESP8266 RTOS SDK master latest
         run: |
           git clone https://github.com/espressif/ESP8266_RTOS_SDK.git esp8266-rtos-sdk
+          cd esp8266-rtos-sdk
+          ./install.sh
+          pip3 install --user -r ./requirements.txt
 
       - name: Set environment and build
         run: |
           export ESP8266_RTOS_SDK_PATH=$(pwd)/esp8266-rtos-sdk
           export IDF_PATH=$(pwd)/esp8266-rtos-sdk
+          cd $GITHUB_WORKSPACE
+          make defconfig
           cd $GITHUB_WORKSPACE/test
           ./run_test.sh
 
