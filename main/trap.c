@@ -1,6 +1,6 @@
 /* 
- * Implementation of trap module to handle clearButton callback
- * and stateProbe registration
+ * Implementation of trap module.
+ * Most of the system debug infrastructure which is not large enough to be indedpendent file will be caputred here.
  */
 
 #include <stdio.h>

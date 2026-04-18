@@ -92,6 +92,6 @@ esp_err_t boardCfg_wr_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t
 
 /* STACK ALLOTMENT */
 #define DS1307_TASK_STACK_SIZE      2048
-#define TICK_TASK_STACK_SIZE        2048
+#define TICK_TASK_STACK_SIZE        2304
 #define LATE_INIT_TASK_STACK_SIZE   2048
 #endif /*__BOARD_CFG_H__*/

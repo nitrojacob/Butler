@@ -29,6 +29,7 @@
 #include "comm.h"
 #include "board_cfg.h"
 #include "trap.h"
+#include "sysStat.h"
 
 static const char TAG[] = "main.c";
 static volatile int lateInitCompleted = 0;
@@ -138,6 +139,7 @@ void app_main()
 {
   compute_device_uname();
   stateProbe_init(device_uname, sizeof(device_uname)-1);
+  sysStat_init();
   tmu_init();
 
   ESP_LOGI(TAG, "app_main started...");

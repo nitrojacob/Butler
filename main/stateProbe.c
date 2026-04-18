@@ -114,9 +114,8 @@ static void mqtt_cb(void* self, esp_event_base_t event_base, int32_t event_id, v
 static void stateProbe_probeCb(void* self, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
   context = (esp_mqtt_event_handle_t)event_data;
-
-  ESP_LOGI(TAG, "MQTT_EVENT_DATA - probeCb");
   stateProbe_probe *pCurrent;
+  
   pCurrent = probeList;
   if(strncmp(context->topic, mqtt_name, len_mqtt_name) == 0)    /*Compare the device name*/
   {
