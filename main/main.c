@@ -30,6 +30,7 @@
 #include "board_cfg.h"
 #include "trap.h"
 #include "sysStat.h"
+#include "version.h"
 
 static const char TAG[] = "main.c";
 static volatile int lateInitCompleted = 0;
@@ -92,6 +93,7 @@ static void lateInit(void * pvParameters)
   heartBeat_reconfigure(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1);*/
   stateProbe_late_init();
   fota_init();
+  version_init();
   trap_late_init();
   nvCronRemote_init();
   tmuRemote_init();

@@ -24,6 +24,7 @@
         "nvs_mock.h": "c",
         "tmu_mock.h": "c",
         "test_cases.h": "c",
-        "actuator_mock.h": "c"
+        "actuator_mock.h": "c",
+        "sntp.h": "c"
     }
 }
