@@ -26,11 +26,11 @@ static const U8 actuatorGPIOMap[ACTUATOR_PINS_PER_PORT] = {
     /*0*/             5,  /*HighZ throughout boot*/
     /*1*/             4,  /*"*/
     /*2*/             13, /*High during boot*/
-    /*3*/             15,
-    /*4*/             15,
-    /*5*/             15,
-    /*6*/             15,
-    /*7*/             15
+    /*3*/             16,
+    /*4*/             16,
+    /*5*/             16,
+    /*6*/             16,
+    /*7*/             16
 };
 static softActFn softActuator[ACTUATOR_PINS_PER_PORT];
 U8 softActuatorShadow, pinActuatorShadow;

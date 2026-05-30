@@ -57,8 +57,8 @@
  * GPIO 12: I2C SCL
  * GPIO 13: Actuator 2
  * GPIO 14: I2C SDA
- * GPIO 15: Actuator 3
- * GPIO 16: Not Used
+ * GPIO 15: Not Used
+ * GPIO 16: Actuator 3
  */
 
 /* Public getters for configurable strings. Each reads a fixed 64-byte NVS

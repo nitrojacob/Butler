@@ -4789,7 +4789,7 @@
 	)
 	(wire
 		(pts
-			(xy 175.26 120.65) (xy 173.99 120.65)
+			(xy 173.99 120.65) (xy 175.26 120.65)
 		)
 		(stroke
 			(width 0)
@@ -5386,6 +5386,16 @@
 			(type default)
 		)
 		(uuid "6e2cad29-9100-44ea-8e80-604fbb2126cf")
+	)
+	(wire
+		(pts
+			(xy 175.26 118.11) (xy 173.99 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6f0f2004-1486-4bd1-acf0-3d286d0f22df")
 	)
 	(wire
 		(pts
@@ -6379,16 +6389,6 @@
 	)
 	(wire
 		(pts
-			(xy 175.26 118.11) (xy 173.99 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eec64c0c-5c38-4f1e-b502-33d1836760e5")
-	)
-	(wire
-		(pts
 			(xy 142.24 39.37) (xy 139.7 39.37)
 		)
 		(stroke
@@ -6507,7 +6507,7 @@
 		)
 		(uuid "0119a77b-0517-4541-a05c-83fa395ca987")
 	)
-	(label "ACT_4"
+	(label "GPIO15"
 		(at 34.29 127 0)
 		(effects
 			(font
@@ -6648,7 +6648,7 @@
 		(uuid "6be023cc-1724-4a3c-8041-5ff9b0b6c7a9")
 	)
 	(label "ACT_4"
-		(at 175.26 118.11 0)
+		(at 175.26 120.65 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6716,6 +6716,16 @@
 			(justify left bottom)
 		)
 		(uuid "9d6c8a3d-ff96-427a-a0a7-2ce593997717")
+	)
+	(label "GPIO15"
+		(at 175.26 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a6d6a495-7b03-4692-bfc9-e4b559206638")
 	)
 	(label "nRST"
 		(at 77.47 171.45 0)

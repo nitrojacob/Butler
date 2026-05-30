@@ -9,9 +9,9 @@ static const char versionProbeCmd[] = "version";
 static stateProbe_probe versionProbe;
 
 #ifdef CONFIG_IDF_TARGET_ESP8266
-#include <esp_ota_ops.h>
+  #include <esp_ota_ops.h>
 #else
-#include <esp_app_desc.h>
+  #include <esp_app_desc.h>
 #endif
 
 static void version_cb(const char* data, int length)
