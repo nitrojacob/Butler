@@ -59,9 +59,9 @@ void ds1307_init(void)
   i2c_config_t i2c_cfg;
   ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER));
   i2c_cfg.mode = I2C_MODE_MASTER;
-  i2c_cfg.scl_io_num = I2C_MASTER_SCL_IO;
+  i2c_cfg.scl_io_num = BOARD_CFG_GPIO_I2C_SCL;
   i2c_cfg.scl_pullup_en = 1;
-  i2c_cfg.sda_io_num = I2C_MASTER_SDA_IO;
+  i2c_cfg.sda_io_num = BOARD_CFG_GPIO_I2C_SDA;
   i2c_cfg.sda_pullup_en = 1;
   i2c_cfg.clk_stretch_tick = 300;
   ESP_ERROR_CHECK(i2c_param_config(I2C_NUM_0, &i2c_cfg));

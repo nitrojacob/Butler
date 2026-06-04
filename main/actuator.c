@@ -23,14 +23,14 @@
 volatile static U8 actuatorState[ACTUATOR_PRIO_NOF][ACTUATOR_PORTS_NOF];
 static const U8 actuatorGPIOMap[ACTUATOR_PINS_PER_PORT] = {
     /*actuator*/    /*GPIO*/
-    /*0*/             5,  /*HighZ throughout boot*/
-    /*1*/             4,  /*"*/
-    /*2*/             13, /*High during boot*/
-    /*3*/             16,
-    /*4*/             16,
-    /*5*/             16,
-    /*6*/             16,
-    /*7*/             16
+    /*0*/             BOARD_CFG_GPIO_ACTUATOR_0,
+    /*1*/             BOARD_CFG_GPIO_ACTUATOR_1,
+    /*2*/             BOARD_CFG_GPIO_ACTUATOR_2,
+    /*3*/             BOARD_CFG_GPIO_ACTUATOR_3,
+    /*4*/             BOARD_CFG_GPIO_ACTUATOR_3,
+    /*5*/             BOARD_CFG_GPIO_ACTUATOR_3,
+    /*6*/             BOARD_CFG_GPIO_ACTUATOR_3,
+    /*7*/             BOARD_CFG_GPIO_ACTUATOR_3
 };
 static softActFn softActuator[ACTUATOR_PINS_PER_PORT];
 U8 softActuatorShadow, pinActuatorShadow;

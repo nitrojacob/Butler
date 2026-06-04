@@ -243,6 +243,6 @@ static void commPreInit(void * pvParameters)
 
 void commInit(void)
 {
-    heartBeat_init(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1, INDICATOR_LED);
+    heartBeat_init(&heartBeat, BOARD_CFG_HB_OFF_TIME, gState+1, BOARD_CFG_GPIO_HEARTBEAT_LED);
     xTaskCreate(commPreInit, "comm-pre", COMM_STACK_SIZE, NULL, 2, NULL);
 }

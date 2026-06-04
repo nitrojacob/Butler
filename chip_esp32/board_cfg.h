@@ -16,16 +16,11 @@
 #define NVLOGRING_MAX_ENTRIES 32
 
 
-/* GPIO for Heartbeat indicotor LED: Active low */
-#define INDICATOR_LED  2
-
 /* Vulnerability: Connection to unsecure broker, ntp server*/
 #define BOARD_CFG_DEFAULT_URL "matrix.local"
 
 #define BOARD_CFG_WIFI_RETRY_DELAY        10000
 
-#define I2C_MASTER_SCL_IO           1               /*!< gpio number for I2C master clock */
-#define I2C_MASTER_SDA_IO           2               /*!< gpio number for I2C master data  */
 
 /* Undefine BOARD_CFG_USE_DS1307 if you want to reclaim the SCL and SDA pins for something else. If this config is enabled
    We will see if a DS1307 is available on the SCL and SDA lines defined above. And use its time if one is found. If not found,
@@ -41,23 +36,37 @@
 
 /* PIN Planning
  * GPIO 0: Input for NVS Reset
- * GPIO 1: UART
+ * GPIO 1: UART TXD v
  * GPIO 2: Heartbeat LED
- * GPIO 3: UART
- * GPIO 4: Actuator 1
- * GPIO 5: Actuator 0
+ * GPIO 3: UART RXD v
+ * GPIO 4: Actuator 0 v
+ * GPIO 5: Not Used
  * GPIO 6: FLASH
  * GPIO 7: FLASH
  * GPIO 8: FLASH
  * GPIO 9: FLASH
  * GPIO 10: FLASH
  * GPIO 11: FLASH
- * GPIO 12: I2C SCL
- * GPIO 13: Actuator 2
- * GPIO 14: I2C SDA
+ * GPIO 12: Not Used
+ * GPIO 13: Actuator 1
+ * GPIO 14: Actuator 2
  * GPIO 15: Actuator 3
  * GPIO 16: Not Used
+ * ----
+ * GPIO 21: I2C SDA v
+ * GPIO 22: I2C SCL v
  */
+
+/* GPIO for Heartbeat indicator LED: Active low */
+#define BOARD_CFG_GPIO_HEARTBEAT_LED  2
+
+#define BOARD_CFG_GPIO_I2C_SCL      22
+#define BOARD_CFG_GPIO_I2C_SDA      21
+
+#define BOARD_CFG_GPIO_ACTUATOR_0   4
+#define BOARD_CFG_GPIO_ACTUATOR_1   13
+#define BOARD_CFG_GPIO_ACTUATOR_2   14
+#define BOARD_CFG_GPIO_ACTUATOR_3   15
 
 /* Public getters for configurable strings. Each reads a fixed 64-byte NVS
  * blob (exactly 64 bytes) from namespace "board_cfg" and copies at most

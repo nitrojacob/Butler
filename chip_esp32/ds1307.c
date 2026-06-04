@@ -54,8 +54,8 @@ void ds1307_init(void)
     i2c_master_bus_config_t bus_cfg;
     bus_cfg.i2c_port = I2C_NUM_0;
     /* Use board-configured SDA/SCL pins */
-    bus_cfg.sda_io_num = I2C_MASTER_SDA_IO;
-    bus_cfg.scl_io_num = I2C_MASTER_SCL_IO;
+    bus_cfg.sda_io_num = BOARD_CFG_GPIO_I2C_SDA;
+    bus_cfg.scl_io_num = BOARD_CFG_GPIO_I2C_SCL;
     bus_cfg.glitch_ignore_cnt = 0;
     bus_cfg.intr_priority = 0;
     bus_cfg.trans_queue_depth = 0;

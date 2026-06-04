@@ -17,17 +17,10 @@
 /* Log Ring Buffer Configuration */
 #define NVLOGRING_MAX_ENTRIES 32
 
-
-/* GPIO for Heartbeat indicotor LED: Active low */
-#define INDICATOR_LED  2
-
 /* Vulnerability: Connection to unsecure broker, ntp server*/
 #define BOARD_CFG_DEFAULT_URL "matrix.local"
 
 #define BOARD_CFG_WIFI_RETRY_DELAY        10000
-
-#define I2C_MASTER_SCL_IO           12               /*!< gpio number for I2C master clock */
-#define I2C_MASTER_SDA_IO           14               /*!< gpio number for I2C master data  */
 
 /* Undefine BOARD_CFG_USE_DS1307 if you want to reclaim the SCL and SDA pins for something else. If this config is enabled
    We will see if a DS1307 is available on the SCL and SDA lines defined above. And use its time if one is found. If not found,
@@ -60,6 +53,17 @@
  * GPIO 15: Not Used
  * GPIO 16: Actuator 3
  */
+
+/* GPIO for Heartbeat indicator LED: Active low */
+#define BOARD_CFG_GPIO_HEARTBEAT_LED  2
+
+#define BOARD_CFG_GPIO_I2C_SCL      12
+#define BOARD_CFG_GPIO_I2C_SDA      14
+
+#define BOARD_CFG_GPIO_ACTUATOR_0   5
+#define BOARD_CFG_GPIO_ACTUATOR_1   4
+#define BOARD_CFG_GPIO_ACTUATOR_2   13
+#define BOARD_CFG_GPIO_ACTUATOR_3   16
 
 /* Public getters for configurable strings. Each reads a fixed 64-byte NVS
  * blob (exactly 64 bytes) from namespace "board_cfg" and copies at most
